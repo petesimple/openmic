@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Mic Sign Up v1.3</title>
+  <title>Open Mic Sign Up v1.3.5</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -67,7 +67,7 @@
     .qr-box { display: grid; place-items: center; min-height: 220px; border: 1px dashed var(--line); border-radius: 16px; background: rgba(255,255,255,.03); }
     #qrCanvas, #posterQrCanvas { max-width: 100%; height: auto; background: white; padding: 8px; border-radius: 12px; }
     .list-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; justify-content: space-between; align-items: center; }
-    table { width: 100%; border-collapse: collapse; min-width: 1220px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1240px; }
     th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; vertical-align: top; text-align: left; font-size: .95rem; }
     th { color: var(--muted); font-size: .84rem; text-transform: uppercase; letter-spacing: .06em; position: sticky; top: 0; background: #141b22; z-index: 1; }
     .table-wrap { overflow: auto; max-height: 70vh; }
@@ -129,8 +129,8 @@
           <p class="subtitle">A GitHub Pages friendly open mic app with host auth, QR powered public sign up, editable running order, and automatic slot planning.</p>
           <div class="pillbar">
             <span class="pill">Google sign in for hosts</span>
+            <span class="pill">Music and comedy modes</span>
             <span class="pill">Public can read + sign up</span>
-            <span class="pill">Host owns event edits</span>
             <span class="pill">Poster view included</span>
           </div>
           <div class="top-actions">
@@ -142,14 +142,14 @@
       </div>
       <div class="card">
         <div class="card-inner">
-          <h2 class="section-title">v1.3 upgrades</h2>
-          <p class="subtitle">Firebase Authentication for hosts, owner based event editing, host only signup management, drag and drop ordering, and a tighter Firestore rules model that finally separates public signups from admin control.</p>
-          <p class="tiny muted" style="margin-top:12px;">Important: add <strong>petesimple.github.io</strong> to Firebase Authentication authorized domains before testing Google sign in.</p>
+          <h2 class="section-title">v1.3.5 upgrades</h2>
+          <p class="subtitle">Added an admin event type switch for comedy open mics with better defaults, no song counts, and host guidance text tailored for standup style events.</p>
+          <p class="tiny muted" style="margin-top:12px;">This keeps your v1.3 owner based host workflow, while adding a cleaner setup for comedy rooms.</p>
         </div>
       </div>
     </section>
 
-    <div class="banner" id="setupBanner">Firebase is connected. For v1.3, enable Google sign in under Firebase Authentication and publish the rules block at the bottom of this page.</div>
+    <div class="banner" id="setupBanner">Firebase is connected. For v1.3.5, keep using the v1.3 auth and Firestore setup.</div>
     <div class="banner error-banner hidden" id="errorBanner"></div>
     <div class="banner success-banner hidden" id="successBanner"></div>
 
@@ -177,8 +177,16 @@
           </div>
 
           <div class="field">
+            <label>Open mic type</label>
+            <select id="eventTypeInput">
+              <option value="music">Music Open Mic</option>
+              <option value="comedy">Comedy Open Mic</option>
+            </select>
+          </div>
+
+          <div class="field">
             <label>Host note for yourself</label>
-            <div class="tiny muted">Only the event owner can edit or manage the admin side in v1.3.</div>
+            <div class="tiny muted">Only the signed in event owner can edit or manage the admin side in v1.3.5.</div>
           </div>
 
           <hr style="border:none;border-top:1px solid var(--line);margin:16px 0;" />
@@ -196,12 +204,12 @@
 
           <div class="row">
             <div class="field"><label>Venue closes</label><input id="venueCloseInput" type="time" value="23:00" /></div>
-            <div class="field"><label>Minutes per act</label><input id="slotMinutesInput" type="number" min="1" max="120" value="15" /></div>
+            <div class="field"><label id="slotMinutesLabel">Minutes per act</label><input id="slotMinutesInput" type="number" min="1" max="120" value="15" /></div>
           </div>
 
           <div class="row">
-            <div class="field"><label>Song limit</label><input id="songLimitInput" type="number" min="1" max="20" value="3" /></div>
-            <div class="field"><label>Estimated buffer per act (min)</label><input id="bufferMinutesInput" type="number" min="0" max="60" value="0" /></div>
+            <div class="field" id="songLimitField"><label id="songLimitLabel">Song limit</label><input id="songLimitInput" type="number" min="0" max="20" value="3" /></div>
+            <div class="field"><label id="bufferMinutesLabel">Estimated buffer per act (min)</label><input id="bufferMinutesInput" type="number" min="0" max="60" value="0" /></div>
           </div>
 
           <div class="field"><label>Public host notes</label><textarea id="hostNotesInput" placeholder="Example: Solo acts first, groups please note setup needs, late arrivals may be moved."></textarea></div>
@@ -245,12 +253,12 @@
                 <h3 class="section-title">Add performer manually</h3>
                 <div class="field"><label>Name</label><input id="manualNameInput" placeholder="Performer name" /></div>
                 <div class="row">
-                  <div class="field"><label>Act / Band</label><input id="manualActInput" placeholder="Band or act name" /></div>
+                  <div class="field"><label id="manualActLabel">Act / Band</label><input id="manualActInput" placeholder="Band or act name" /></div>
                   <div class="field"><label>Phone or contact</label><input id="manualContactInput" placeholder="Optional" /></div>
                 </div>
                 <div class="row-3">
-                  <div class="field"><label>Songs</label><input id="manualSongsInput" type="number" min="1" max="20" value="3" /></div>
-                  <div class="field"><label>Minutes</label><input id="manualMinutesInput" type="number" min="1" max="60" value="15" /></div>
+                  <div class="field" id="manualSongsField"><label id="manualSongsLabel">Songs</label><input id="manualSongsInput" type="number" min="0" max="20" value="3" /></div>
+                  <div class="field"><label id="manualMinutesLabel">Minutes</label><input id="manualMinutesInput" type="number" min="1" max="60" value="15" /></div>
                   <div class="field"><label>Status</label><select id="manualStatusInput"><option value="signed_up">Signed up</option><option value="checked_in">Checked in</option><option value="waitlist">Waitlist</option></select></div>
                 </div>
                 <div class="field"><label>Notes</label><input id="manualNotesInput" placeholder="Example: Needs DI box" /></div>
@@ -275,7 +283,7 @@
             <div class="action-row"><button class="btn secondary small" id="recalcBtn">Recalculate Times</button></div>
           </div>
 
-          <div class="banner" style="margin-bottom:12px;">Tip: public users can sign up, but only the owner host account can reorder, check in, or edit the lineup in v1.3.</div>
+          <div class="banner" style="margin-bottom:12px;" id="eventTypeHelpBanner">Tip: public users can sign up, while the host can reorder, check in, or edit the lineup.</div>
 
           <div class="table-wrap">
             <table>
@@ -285,8 +293,8 @@
                   <th>Performer</th>
                   <th>Act</th>
                   <th>Contact</th>
-                  <th>Songs</th>
-                  <th>Minutes</th>
+                  <th id="songsColumnHeader">Songs</th>
+                  <th id="minutesColumnHeader">Minutes</th>
                   <th>Start</th>
                   <th>Status</th>
                   <th>Host Controls</th>
@@ -310,18 +318,18 @@
             <div id="signupEventInfo" class="muted">Load an event from a QR code or link to sign up.</div>
             <div id="signupFormWrap" class="hidden" style="margin-top:16px;">
               <div class="field"><label>Your name</label><input id="signupNameInput" placeholder="Your name" /></div>
-              <div class="field"><label>Act / Band name</label><input id="signupActInput" placeholder="Optional act or band name" /></div>
+              <div class="field"><label id="signupActLabel">Act / Band name</label><input id="signupActInput" placeholder="Optional act or band name" /></div>
               <div class="row">
                 <div class="field"><label>Phone or contact</label><input id="signupContactInput" placeholder="Optional" /></div>
-                <div class="field"><label>Song count</label><input id="signupSongsInput" type="number" min="1" max="20" value="3" /></div>
+                <div class="field" id="signupSongsField"><label id="signupSongsLabel">Song count</label><input id="signupSongsInput" type="number" min="0" max="20" value="3" /></div>
               </div>
               <div class="row">
-                <div class="field"><label>Estimated minutes</label><input id="signupMinutesInput" type="number" min="1" max="60" value="15" /></div>
+                <div class="field"><label id="signupMinutesLabel">Estimated minutes</label><input id="signupMinutesInput" type="number" min="1" max="60" value="15" /></div>
                 <div class="field"><label>Setup needs</label><input id="signupNotesInput" placeholder="Mic, DI, stool, tracks, etc." /></div>
               </div>
               <div id="duplicateWarning" class="dupe-warning hidden"></div>
               <div class="top-actions"><button class="btn" id="submitSignupBtn">Join the List</button><button class="btn warn hidden" id="submitDuplicateBtn">Join Anyway</button></div>
-              <div class="tiny muted" style="margin-top:10px;">The host may adjust times, order, and availability to keep the night moving.</div>
+              <div class="tiny muted" style="margin-top:10px;" id="signupFooterHint">The host may adjust times, order, and availability to keep the night moving.</div>
             </div>
           </div>
         </div>
@@ -342,7 +350,7 @@
               <div class="field"><label>Host notes</label><div id="publicHostNotes" class="banner" style="margin:0;">No host notes yet.</div></div>
               <div class="table-wrap" style="max-height:60vh;">
                 <table>
-                  <thead><tr><th>#</th><th>Performer</th><th>Act</th><th>Songs</th><th>Minutes</th><th>Est. Start</th><th>Status</th></tr></thead>
+                  <thead><tr><th>#</th><th>Performer</th><th>Act</th><th id="publicSongsHeader">Songs</th><th id="publicMinutesHeader">Minutes</th><th>Est. Start</th><th>Status</th></tr></thead>
                   <tbody id="publicTbody"><tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr></tbody>
                 </table>
               </div>
@@ -365,6 +373,7 @@
               <div class="poster-meta-item"><div class="poster-label">Signups open</div><div class="poster-value" id="posterSignupOpen">6:00 PM</div></div>
               <div class="poster-meta-item"><div class="poster-label">Show starts</div><div class="poster-value" id="posterShowStart">7:00 PM</div></div>
               <div class="poster-meta-item"><div class="poster-label">Typical slot</div><div class="poster-value" id="posterSlotInfo">3 songs or 15 minutes</div></div>
+              <div class="poster-meta-item"><div class="poster-label">Format</div><div class="poster-value" id="posterFormatInfo">Music Open Mic</div></div>
             </div>
           </div>
           <div class="poster-right"><canvas id="posterQrCanvas"></canvas><div class="tiny muted">Point your camera at the code and join the list.</div></div>
@@ -374,7 +383,7 @@
     </section>
 
     <details class="card rules-box">
-      <summary>Firestore rules for v1.3</summary>
+      <summary>Firestore rules for v1.3.5</summary>
       <div class="card-inner">
         <p class="tiny muted">These rules let anyone read events and signups, let anyone create a signup, and only let the signed in event owner manage the event or signup list.</p>
         <pre>rules_version = '2';
@@ -444,28 +453,35 @@ service cloud.firestore {
       adminView: $('adminView'), signupView: $('signupView'), posterView: $('posterView'),
       goAdminBtn: $('goAdminBtn'), goSignupBtn: $('goSignupBtn'), goPosterBtn: $('goPosterBtn'),
       signInBtn: $('signInBtn'), signOutBtn: $('signOutBtn'), authStatusText: $('authStatusText'),
-      eventIdInput: $('eventIdInput'), loadEventBtn: $('loadEventBtn'), eventNameInput: $('eventNameInput'),
-      venueInput: $('venueInput'), eventDateInput: $('eventDateInput'), signupOpenInput: $('signupOpenInput'),
-      showStartInput: $('showStartInput'), venueCloseInput: $('venueCloseInput'), slotMinutesInput: $('slotMinutesInput'),
-      songLimitInput: $('songLimitInput'), bufferMinutesInput: $('bufferMinutesInput'), hostNotesInput: $('hostNotesInput'),
-      saveEventBtn: $('saveEventBtn'), newEventBtn: $('newEventBtn'), eventTools: $('eventTools'),
-      publicLinkInput: $('publicLinkInput'), copyPublicLinkBtn: $('copyPublicLinkBtn'), downloadQrBtn: $('downloadQrBtn'),
-      openPosterBtn: $('openPosterBtn'), qrCanvas: $('qrCanvas'), posterQrCanvas: $('posterQrCanvas'),
-      adminEventTitle: $('adminEventTitle'), adminEventMeta: $('adminEventMeta'), snapshotText: $('snapshotText'),
-      nowPerformingText: $('nowPerformingText'), adminTbody: $('adminTbody'), publicTbody: $('publicTbody'),
-      publicEventTitle: $('publicEventTitle'), publicEventMeta: $('publicEventMeta'), publicHostNotes: $('publicHostNotes'),
-      publicNowPerforming: $('publicNowPerforming'), signupEventInfo: $('signupEventInfo'), signupFormWrap: $('signupFormWrap'),
-      signupNameInput: $('signupNameInput'), signupActInput: $('signupActInput'), signupContactInput: $('signupContactInput'),
-      signupSongsInput: $('signupSongsInput'), signupMinutesInput: $('signupMinutesInput'), signupNotesInput: $('signupNotesInput'),
-      submitSignupBtn: $('submitSignupBtn'), submitDuplicateBtn: $('submitDuplicateBtn'), duplicateWarning: $('duplicateWarning'),
-      signupResultCard: $('signupResultCard'), signupResultPosition: $('signupResultPosition'), signupResultText: $('signupResultText'),
-      manualNameInput: $('manualNameInput'), manualActInput: $('manualActInput'), manualContactInput: $('manualContactInput'),
-      manualSongsInput: $('manualSongsInput'), manualMinutesInput: $('manualMinutesInput'), manualStatusInput: $('manualStatusInput'),
-      manualNotesInput: $('manualNotesInput'), manualAddBtn: $('manualAddBtn'), exportCsvBtn: $('exportCsvBtn'),
-      refreshBtn: $('refreshBtn'), recalcBtn: $('recalcBtn'), posterTitle: $('posterTitle'), posterSubtitle: $('posterSubtitle'),
-      posterVenue: $('posterVenue'), posterDate: $('posterDate'), posterSignupOpen: $('posterSignupOpen'),
-      posterShowStart: $('posterShowStart'), posterSlotInfo: $('posterSlotInfo'), posterFooter: $('posterFooter'),
-      backFromPosterBtn: $('backFromPosterBtn'), printPosterBtn: $('printPosterBtn'), downloadPosterQrBtn: $('downloadPosterQrBtn')
+      eventIdInput: $('eventIdInput'), loadEventBtn: $('loadEventBtn'), eventTypeInput: $('eventTypeInput'),
+      eventNameInput: $('eventNameInput'), venueInput: $('venueInput'), eventDateInput: $('eventDateInput'),
+      signupOpenInput: $('signupOpenInput'), showStartInput: $('showStartInput'), venueCloseInput: $('venueCloseInput'),
+      slotMinutesInput: $('slotMinutesInput'), slotMinutesLabel: $('slotMinutesLabel'), songLimitInput: $('songLimitInput'),
+      songLimitField: $('songLimitField'), songLimitLabel: $('songLimitLabel'), bufferMinutesInput: $('bufferMinutesInput'),
+      bufferMinutesLabel: $('bufferMinutesLabel'), hostNotesInput: $('hostNotesInput'), saveEventBtn: $('saveEventBtn'),
+      newEventBtn: $('newEventBtn'), eventTools: $('eventTools'), publicLinkInput: $('publicLinkInput'),
+      copyPublicLinkBtn: $('copyPublicLinkBtn'), downloadQrBtn: $('downloadQrBtn'), openPosterBtn: $('openPosterBtn'),
+      qrCanvas: $('qrCanvas'), posterQrCanvas: $('posterQrCanvas'), adminEventTitle: $('adminEventTitle'),
+      adminEventMeta: $('adminEventMeta'), snapshotText: $('snapshotText'), nowPerformingText: $('nowPerformingText'),
+      adminTbody: $('adminTbody'), publicTbody: $('publicTbody'), publicEventTitle: $('publicEventTitle'),
+      publicEventMeta: $('publicEventMeta'), publicHostNotes: $('publicHostNotes'), publicNowPerforming: $('publicNowPerforming'),
+      signupEventInfo: $('signupEventInfo'), signupFormWrap: $('signupFormWrap'), signupNameInput: $('signupNameInput'),
+      signupActInput: $('signupActInput'), signupActLabel: $('signupActLabel'), signupContactInput: $('signupContactInput'),
+      signupSongsField: $('signupSongsField'), signupSongsInput: $('signupSongsInput'), signupSongsLabel: $('signupSongsLabel'),
+      signupMinutesInput: $('signupMinutesInput'), signupMinutesLabel: $('signupMinutesLabel'), signupNotesInput: $('signupNotesInput'),
+      signupFooterHint: $('signupFooterHint'), submitSignupBtn: $('submitSignupBtn'), submitDuplicateBtn: $('submitDuplicateBtn'),
+      duplicateWarning: $('duplicateWarning'), signupResultCard: $('signupResultCard'), signupResultPosition: $('signupResultPosition'),
+      signupResultText: $('signupResultText'), manualNameInput: $('manualNameInput'), manualActInput: $('manualActInput'),
+      manualActLabel: $('manualActLabel'), manualContactInput: $('manualContactInput'), manualSongsField: $('manualSongsField'),
+      manualSongsInput: $('manualSongsInput'), manualSongsLabel: $('manualSongsLabel'), manualMinutesInput: $('manualMinutesInput'),
+      manualMinutesLabel: $('manualMinutesLabel'), manualStatusInput: $('manualStatusInput'), manualNotesInput: $('manualNotesInput'),
+      manualAddBtn: $('manualAddBtn'), exportCsvBtn: $('exportCsvBtn'), refreshBtn: $('refreshBtn'), recalcBtn: $('recalcBtn'),
+      eventTypeHelpBanner: $('eventTypeHelpBanner'), songsColumnHeader: $('songsColumnHeader'), minutesColumnHeader: $('minutesColumnHeader'),
+      publicSongsHeader: $('publicSongsHeader'), publicMinutesHeader: $('publicMinutesHeader'), posterTitle: $('posterTitle'),
+      posterSubtitle: $('posterSubtitle'), posterVenue: $('posterVenue'), posterDate: $('posterDate'), posterSignupOpen: $('posterSignupOpen'),
+      posterShowStart: $('posterShowStart'), posterSlotInfo: $('posterSlotInfo'), posterFormatInfo: $('posterFormatInfo'),
+      posterFooter: $('posterFooter'), backFromPosterBtn: $('backFromPosterBtn'), printPosterBtn: $('printPosterBtn'),
+      downloadPosterQrBtn: $('downloadPosterQrBtn')
     };
 
     const todayLocal = () => {
@@ -479,6 +495,51 @@ service cloud.firestore {
     function showSuccess(message) { els.successBanner.textContent = message; els.successBanner.classList.remove('hidden'); setTimeout(() => els.successBanner.classList.add('hidden'), 3000); }
     function requireHost() { if (!state.user) { showError('Please sign in with Google first.'); return false; } return true; }
     function isEventOwner() { return !!(state.user && state.event && state.event.hostUid === state.user.uid); }
+    function getEventType() { return els.eventTypeInput?.value || 'music'; }
+    function isComedyEvent(evt = state.event) { return (evt?.eventType || getEventType()) === 'comedy'; }
+
+    function applyEventTypeUI(eventType) {
+      const isComedy = eventType === 'comedy';
+      els.songLimitField.classList.toggle('hidden', isComedy);
+      els.manualSongsField.classList.toggle('hidden', isComedy);
+      els.signupSongsField.classList.toggle('hidden', isComedy);
+      els.songsColumnHeader.textContent = isComedy ? 'Bits' : 'Songs';
+      els.publicSongsHeader.textContent = isComedy ? 'Bits' : 'Songs';
+      els.minutesColumnHeader.textContent = isComedy ? 'Set Min' : 'Minutes';
+      els.publicMinutesHeader.textContent = isComedy ? 'Set Min' : 'Minutes';
+      els.slotMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Minutes per act';
+      els.songLimitLabel.textContent = 'Song limit';
+      els.bufferMinutesLabel.textContent = isComedy ? 'Transition buffer (min)' : 'Estimated buffer per act (min)';
+      els.manualActLabel.textContent = isComedy ? 'Comic / Stage name' : 'Act / Band';
+      els.signupActLabel.textContent = isComedy ? 'Comic / Stage name' : 'Act / Band name';
+      els.manualSongsLabel.textContent = isComedy ? 'Bits' : 'Songs';
+      els.signupSongsLabel.textContent = isComedy ? 'Bit count' : 'Song count';
+      els.manualMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Minutes';
+      els.signupMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Estimated minutes';
+      els.signupFooterHint.textContent = isComedy
+        ? 'Typical comedy mics are 3 to 5 minutes. Watch the light and wrap up on time.'
+        : 'The host may adjust times, order, and availability to keep the night moving.';
+      els.eventTypeHelpBanner.textContent = isComedy
+        ? 'Comedy mode: no song counts, tighter default time, and a standup-friendly signup flow.'
+        : 'Tip: public users can sign up, while the host can reorder, check in, or edit the lineup.';
+
+      if (isComedy) {
+        if (Number(els.slotMinutesInput.value || 0) === 15 || !els.slotMinutesInput.value) els.slotMinutesInput.value = '5';
+        els.songLimitInput.value = '0';
+        els.manualSongsInput.value = '0';
+        els.signupSongsInput.value = '0';
+        if (Number(els.bufferMinutesInput.value || 0) === 0) els.bufferMinutesInput.value = '1';
+        if (!els.hostNotesInput.value.trim()) {
+          els.hostNotesInput.value = 'Please arrive early to sign up, watch the light, stick to your time, stay for other comics, and thank the host.';
+        }
+      } else {
+        if (Number(els.slotMinutesInput.value || 0) === 5) els.slotMinutesInput.value = '15';
+        if (Number(els.songLimitInput.value || 0) === 0) els.songLimitInput.value = '3';
+        if (Number(els.manualSongsInput.value || 0) === 0) els.manualSongsInput.value = '3';
+        if (Number(els.signupSongsInput.value || 0) === 0) els.signupSongsInput.value = '3';
+      }
+    }
+
     function updateAuthUI() {
       if (state.user) {
         els.authStatusText.textContent = `Signed in as ${state.user.displayName || state.user.email}`;
@@ -490,16 +551,18 @@ service cloud.firestore {
         els.signOutBtn.classList.add('hidden');
       }
     }
+
     function setAdminControlsEnabled(enabled) {
       [
         els.loadEventBtn, els.saveEventBtn, els.newEventBtn, els.manualAddBtn, els.exportCsvBtn,
         els.refreshBtn, els.recalcBtn, els.copyPublicLinkBtn, els.downloadQrBtn, els.openPosterBtn,
-        els.eventNameInput, els.venueInput, els.eventDateInput, els.signupOpenInput, els.showStartInput,
+        els.eventTypeInput, els.eventNameInput, els.venueInput, els.eventDateInput, els.signupOpenInput, els.showStartInput,
         els.venueCloseInput, els.slotMinutesInput, els.songLimitInput, els.bufferMinutesInput, els.hostNotesInput,
         els.manualNameInput, els.manualActInput, els.manualContactInput, els.manualSongsInput, els.manualMinutesInput,
         els.manualStatusInput, els.manualNotesInput
       ].forEach(el => { if (el) el.disabled = !enabled; });
     }
+
     function refreshOwnershipUI() {
       const enabled = !!state.user && (!state.event || isEventOwner());
       setAdminControlsEnabled(enabled);
@@ -571,12 +634,15 @@ service cloud.firestore {
     function syncPoster(evt) {
       if (!evt || !state.eventId) return;
       els.posterTitle.textContent = evt.eventName || 'Open Mic Tonight';
-      els.posterSubtitle.textContent = `Scan the QR code to sign up for ${evt.venue || 'tonight'} from your phone.`;
+      els.posterSubtitle.textContent = evt.eventType === 'comedy'
+        ? `Scan the QR code to sign up for standup at ${evt.venue || 'tonight'}.`
+        : `Scan the QR code to sign up for ${evt.venue || 'tonight'} from your phone.`;
       els.posterVenue.textContent = evt.venue || 'Your Venue Name';
       els.posterDate.textContent = formatDatePretty(evt.eventDate);
       els.posterSignupOpen.textContent = formatTime(combineDateTime(evt.eventDate, evt.signupOpenTime));
       els.posterShowStart.textContent = formatTime(combineDateTime(evt.eventDate, evt.showStartTime));
-      els.posterSlotInfo.textContent = `${evt.songLimit} songs or ${evt.slotMinutes} minutes`;
+      els.posterSlotInfo.textContent = evt.eventType === 'comedy' ? `${evt.slotMinutes} minutes` : `${evt.songLimit} songs or ${evt.slotMinutes} minutes`;
+      els.posterFormatInfo.textContent = evt.eventType === 'comedy' ? 'Comedy Open Mic' : 'Music Open Mic';
       els.posterFooter.textContent = evt.hostNotes || 'Host may adjust order to keep the night moving.';
       renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas).catch(console.error);
     }
@@ -605,8 +671,12 @@ service cloud.firestore {
       els.publicEventTitle.textContent = evt.eventName;
       els.publicEventMeta.textContent = meta;
       els.publicHostNotes.textContent = evt.hostNotes || 'No host notes yet.';
-      els.signupEventInfo.innerHTML = `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Limit: ${evt.songLimit} songs or about ${evt.slotMinutes} minutes.</span>`;
+      els.signupEventInfo.innerHTML = evt.eventType === 'comedy'
+        ? `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Typical set: about ${evt.slotMinutes} minutes. Watch the light and wrap up on time.</span>`
+        : `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Limit: ${evt.songLimit} songs or about ${evt.slotMinutes} minutes.</span>`;
       els.signupFormWrap.classList.remove('hidden');
+      els.eventTypeInput.value = evt.eventType || 'music';
+      applyEventTypeUI(els.eventTypeInput.value);
       els.eventNameInput.value = evt.eventName || '';
       els.venueInput.value = evt.venue || '';
       els.eventDateInput.value = evt.eventDate || todayLocal();
@@ -614,7 +684,7 @@ service cloud.firestore {
       els.showStartInput.value = evt.showStartTime || '19:00';
       els.venueCloseInput.value = evt.venueCloseTime || '23:00';
       els.slotMinutesInput.value = evt.slotMinutes || 15;
-      els.songLimitInput.value = evt.songLimit || 3;
+      els.songLimitInput.value = evt.songLimit ?? 3;
       els.bufferMinutesInput.value = evt.bufferMinutes || 0;
       els.hostNotesInput.value = evt.hostNotes || '';
       syncPoster(evt);
@@ -645,12 +715,13 @@ service cloud.firestore {
         els.publicTbody.innerHTML = '<tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>';
         return;
       }
+      const comedy = isComedyEvent();
       els.publicTbody.innerHTML = scheduled.map(row => `
         <tr>
           <td>${row.calcOrder}</td>
           <td>${escapeHtml(row.performerName || '')}</td>
           <td>${escapeHtml(row.actName || '')}</td>
-          <td>${Number(row.songCount || '')}</td>
+          <td>${comedy ? '-' : Number(row.songCount || '')}</td>
           <td>${Number(row.minutes || '')}</td>
           <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
           <td>${fmtStatus(row.calculatedStatus)}</td>
@@ -667,13 +738,14 @@ service cloud.firestore {
         return;
       }
       const owner = isEventOwner();
+      const comedy = isComedyEvent();
       els.adminTbody.innerHTML = scheduled.map((row, idx) => `
         <tr data-row-id="${row.id}">
           <td>${row.calcOrder}</td>
           <td><input data-id="${row.id}" data-field="performerName" value="${escapeHtml(row.performerName || '')}" ${owner ? '' : 'disabled'} /></td>
           <td><input data-id="${row.id}" data-field="actName" value="${escapeHtml(row.actName || '')}" ${owner ? '' : 'disabled'} /></td>
           <td><input data-id="${row.id}" data-field="contact" value="${escapeHtml(row.contact || '')}" ${owner ? '' : 'disabled'} /></td>
-          <td><input data-id="${row.id}" data-field="songCount" type="number" min="1" max="20" value="${Number(row.songCount || 3)}" ${owner ? '' : 'disabled'} /></td>
+          <td>${comedy ? '-' : `<input data-id="${row.id}" data-field="songCount" type="number" min="0" max="20" value="${Number(row.songCount || 0)}" ${owner ? '' : 'disabled'} />`}</td>
           <td><input data-id="${row.id}" data-field="minutes" type="number" min="1" max="60" value="${Number(row.minutes || 15)}" ${owner ? '' : 'disabled'} /></td>
           <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
           <td>${fmtStatus(row.calculatedStatus)}</td>
@@ -703,15 +775,17 @@ service cloud.firestore {
         const snap = await getDoc(ref);
         if (snap.exists() && snap.data().hostUid !== state.user.uid) return showError('This event belongs to another host account.');
         if (!snap.exists() && !createIfNew) return alert('Event was not found.');
+        const eventType = getEventType();
         const payload = {
           eventName: els.eventNameInput.value.trim() || 'Weekly Open Mic',
+          eventType,
           venue: els.venueInput.value.trim() || 'Your Venue Name',
           eventDate: els.eventDateInput.value || todayLocal(),
           signupOpenTime: els.signupOpenInput.value || '18:00',
           showStartTime: els.showStartInput.value || '19:00',
           venueCloseTime: els.venueCloseInput.value || '23:00',
-          slotMinutes: Number(els.slotMinutesInput.value || 15),
-          songLimit: Number(els.songLimitInput.value || 3),
+          slotMinutes: Number(els.slotMinutesInput.value || (eventType === 'comedy' ? 5 : 15)),
+          songLimit: eventType === 'comedy' ? 0 : Number(els.songLimitInput.value || 3),
           bufferMinutes: Number(els.bufferMinutesInput.value || 0),
           hostNotes: els.hostNotesInput.value.trim(),
           hostUid: state.user.uid,
@@ -729,7 +803,7 @@ service cloud.firestore {
         await renderQr(publicUrl, els.qrCanvas);
         history.replaceState({}, '', buildAdminUrl(eventId));
         await loadEvent(eventId);
-        showSuccess('Event saved. Host ownership is attached to your signed in account.');
+        showSuccess('Event saved. Format settings updated.');
       } catch (err) {
         console.error(err);
         showError(`Save failed: ${err.message || err}`);
@@ -776,6 +850,7 @@ service cloud.firestore {
         return (normalizedName && itemName === normalizedName) || (normalizedContact && itemContact === normalizedContact);
       });
     }
+
     function updateDuplicateWarning() {
       const matches = getDuplicateMatches(els.signupNameInput.value, els.signupContactInput.value);
       if (matches.length) {
@@ -807,7 +882,7 @@ service cloud.firestore {
           performerName,
           actName: els.signupActInput.value.trim(),
           contact: els.signupContactInput.value.trim(),
-          songCount: Number(els.signupSongsInput.value || state.event.songLimit || 3),
+          songCount: isComedyEvent() ? 0 : Number(els.signupSongsInput.value || state.event.songLimit || 3),
           minutes: Number(els.signupMinutesInput.value || state.event.slotMinutes || 15),
           notes: els.signupNotesInput.value.trim(),
           status: 'signed_up',
@@ -820,7 +895,7 @@ service cloud.firestore {
         els.signupNameInput.value = '';
         els.signupActInput.value = '';
         els.signupContactInput.value = '';
-        els.signupSongsInput.value = String(state.event.songLimit || 3);
+        els.signupSongsInput.value = isComedyEvent() ? '0' : String(state.event.songLimit || 3);
         els.signupMinutesInput.value = String(state.event.slotMinutes || 15);
         els.signupNotesInput.value = '';
         els.duplicateWarning.textContent = '';
@@ -840,7 +915,7 @@ service cloud.firestore {
           performerName,
           actName: els.manualActInput.value.trim(),
           contact: els.manualContactInput.value.trim(),
-          songCount: Number(els.manualSongsInput.value || 3),
+          songCount: isComedyEvent() ? 0 : Number(els.manualSongsInput.value || 3),
           minutes: Number(els.manualMinutesInput.value || 15),
           status: els.manualStatusInput.value,
           notes: els.manualNotesInput.value.trim(),
@@ -852,7 +927,7 @@ service cloud.firestore {
         els.manualNameInput.value = '';
         els.manualActInput.value = '';
         els.manualContactInput.value = '';
-        els.manualSongsInput.value = '3';
+        els.manualSongsInput.value = isComedyEvent() ? '0' : '3';
         els.manualMinutesInput.value = String(state.event?.slotMinutes || 15);
         els.manualStatusInput.value = 'signed_up';
         els.manualNotesInput.value = '';
@@ -936,7 +1011,7 @@ service cloud.firestore {
     function exportCsv() {
       const scheduled = calculateSchedule(state.event, state.signups);
       if (!scheduled.length) return alert('No signups to export.');
-      const rows = [['Order','Performer','Act','Contact','Songs','Minutes','Estimated Start','Status','Notes'], ...scheduled.map(row => [row.calcOrder,row.performerName || '',row.actName || '',row.contact || '',row.songCount || '',row.minutes || '',row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist',row.calculatedStatus || '',row.notes || ''])];
+      const rows = [['Order','Performer','Act','Contact','Songs','Minutes','Estimated Start','Status','Notes'], ...scheduled.map(row => [row.calcOrder,row.performerName || '',row.actName || '',row.contact || '',isComedyEvent() ? '' : row.songCount || '',row.minutes || '',row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist',row.calculatedStatus || '',row.notes || ''])];
       const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -1001,6 +1076,7 @@ service cloud.firestore {
       catch (err) { showError(`Sign out failed: ${err.message || err}`); }
     });
 
+    els.eventTypeInput.addEventListener('change', () => applyEventTypeUI(getEventType()));
     els.goAdminBtn.addEventListener('click', () => { setMode('admin'); updateUrlForMode('admin'); });
     els.goSignupBtn.addEventListener('click', () => { setMode('signup'); updateUrlForMode('signup'); });
     els.goPosterBtn.addEventListener('click', async () => { setMode('poster'); updateUrlForMode('poster'); if (state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas); });
@@ -1013,6 +1089,8 @@ service cloud.firestore {
       if (state.unsub) { state.unsub(); state.unsub = null; }
       state.signups = [];
       els.eventIdInput.value = '';
+      els.eventTypeInput.value = 'music';
+      applyEventTypeUI('music');
       els.eventNameInput.value = 'Weekly Open Mic';
       els.venueInput.value = 'Your Venue Name';
       els.eventDateInput.value = todayLocal();
@@ -1056,6 +1134,7 @@ service cloud.firestore {
     (async function init() {
       const { view, event } = parseUrl();
       setMode(view === 'signup' ? 'signup' : view === 'poster' ? 'poster' : 'admin');
+      applyEventTypeUI(getEventType());
       refreshOwnershipUI();
       if (event) {
         els.eventIdInput.value = event;
