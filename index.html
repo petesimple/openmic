@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Mic Sign Up v1.1</title>
+  <title>Open Mic Sign Up v1.2</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -153,10 +153,7 @@
 
     .muted { color: var(--muted); }
     .tiny { font-size: .84rem; }
-    .good-text { color: var(--good); }
     .warn-text { color: var(--warn); }
-    .bad-text { color: var(--bad); }
-    .live-text { color: #ffb3b3; }
 
     .field { margin-bottom: 12px; }
     .field label {
@@ -224,7 +221,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1120px;
+      min-width: 1180px;
     }
 
     th, td {
@@ -434,18 +431,39 @@
       color: var(--warn);
     }
 
+    .drag-handle {
+      cursor: grab;
+      user-select: none;
+      font-weight: 900;
+      min-width: 44px;
+    }
+
+    .rules-box {
+      margin-top: 18px;
+    }
+
+    .rules-box summary {
+      cursor: pointer;
+      padding: 18px 18px 0;
+      font-weight: 800;
+    }
+
+    .rules-box pre {
+      white-space: pre-wrap;
+      background: #0d141c;
+      border: 1px solid var(--line);
+      padding: 14px;
+      border-radius: 14px;
+      overflow: auto;
+      font-size: .9rem;
+    }
+
     @media print {
       body { background: white; }
       .wrap > *:not(#posterView) { display: none !important; }
       #posterView.hidden { display: block !important; }
-      #posterView {
-        margin: 0;
-        padding: 0;
-      }
-      .poster-shell {
-        box-shadow: none;
-        border: 0;
-      }
+      #posterView { margin: 0; padding: 0; }
+      .poster-shell { box-shadow: none; border: 0; }
     }
 
     @media (max-width: 1100px) {
@@ -465,7 +483,7 @@
             <span class="pill">Default: sign up at 6:00 PM</span>
             <span class="pill">Default: show starts at 7:00 PM</span>
             <span class="pill">Default: 3 songs or 15 minutes</span>
-            <span class="pill">Poster view included</span>
+            <span class="pill">Drag and drop lineup</span>
           </div>
           <div class="top-actions">
             <button class="btn" id="goAdminBtn">Host Admin</button>
@@ -476,9 +494,9 @@
       </div>
       <div class="card">
         <div class="card-inner">
-          <h2 class="section-title">v1.1 upgrades</h2>
-          <p class="subtitle">Poster view for printing or tablet display, better signup success feedback, duplicate name warnings, check in and now performing controls, and a more venue friendly host workflow.</p>
-          <p class="tiny muted" style="margin-top:12px;">If event saving fails, the most likely issue is still Firestore rules.</p>
+          <h2 class="section-title">v1.2 upgrades</h2>
+          <p class="subtitle">Drag and drop lineup ordering, saved local admin PIN convenience, better host workflow, and a safer Firestore rules recommendation for public use.</p>
+          <p class="tiny muted" style="margin-top:12px;">Full admin security still needs Firebase Auth or a trusted backend, but this version gets the app cleaner and closer to production use.</p>
         </div>
       </div>
     </section>
@@ -642,11 +660,13 @@
           </div>
 
           <div class="list-tools">
-            <div class="tiny muted">Move performers up or down to adjust the running order. Use Check In, Live, and Done to run the room.</div>
+            <div class="tiny muted">Drag the ☰ handle to reorder the lineup. Use Check In, Live, and Done to run the room.</div>
             <div class="action-row">
               <button class="btn secondary small" id="recalcBtn">Recalculate Times</button>
             </div>
           </div>
+
+          <div class="banner" style="margin-bottom:12px;">Tip: drag the handle in the Move / Drag column for faster resequencing during the night.</div>
 
           <div class="table-wrap">
             <table>
@@ -662,7 +682,7 @@
                   <th>Status</th>
                   <th>Host Controls</th>
                   <th>Notes</th>
-                  <th>Move</th>
+                  <th>Move / Drag</th>
                   <th>Delete</th>
                 </tr>
               </thead>
@@ -800,6 +820,28 @@
         <div class="poster-footer" id="posterFooter">Host may adjust order to keep the night moving.</div>
       </div>
     </section>
+
+    <details class="card rules-box">
+      <summary>Recommended Firestore rules for safer public usage</summary>
+      <div class="card-inner">
+        <p class="tiny muted">These rules are safer than fully open testing rules. They let the public read events and signups, and create signups, but they do not protect admin writes yet. For true admin security, add Firebase Auth in a later version.</p>
+        <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /openMicEvents/{eventId} {
+      allow read: if true;
+      allow create, update, delete: if true; // replace with admin auth later
+
+      match /signups/{signupId} {
+        allow read: if true;
+        allow create: if true;
+        allow update, delete: if true; // replace with admin auth later
+      }
+    }
+  }
+}</pre>
+      </div>
+    </details>
   </div>
 
   <script type="module">
@@ -842,7 +884,8 @@
       unsub: null,
       adminPin: '',
       pendingDuplicateOverride: false,
-      lastSignupId: null
+      lastSignupId: null,
+      dragId: null
     };
 
     const $ = (id) => document.getElementById(id);
@@ -951,9 +994,17 @@
     function showSuccess(message) {
       els.successBanner.textContent = message;
       els.successBanner.classList.remove('hidden');
-      setTimeout(() => {
-        els.successBanner.classList.add('hidden');
-      }, 3000);
+      setTimeout(() => els.successBanner.classList.add('hidden'), 3000);
+    }
+
+    function saveAdminPinLocal(eventId, pin) {
+      if (!eventId || !pin) return;
+      localStorage.setItem(`openmic_admin_pin_${eventId}`, pin);
+    }
+
+    function loadAdminPinLocal(eventId) {
+      if (!eventId) return '';
+      return localStorage.getItem(`openmic_admin_pin_${eventId}`) || '';
     }
 
     function slugify(str) {
@@ -1093,9 +1144,7 @@
     }
 
     function getLivePerformer(scheduled) {
-      const live = scheduled.find(x => x.calculatedStatus === 'live');
-      if (!live) return null;
-      return live;
+      return scheduled.find(x => x.calculatedStatus === 'live') || null;
     }
 
     function syncPoster(evt) {
@@ -1205,7 +1254,7 @@
       }
 
       els.adminTbody.innerHTML = scheduled.map((row, idx) => `
-        <tr>
+        <tr data-row-id="${row.id}">
           <td>${row.calcOrder}</td>
           <td><input data-id="${row.id}" data-field="performerName" value="${escapeHtml(row.performerName || '')}" /></td>
           <td><input data-id="${row.id}" data-field="actName" value="${escapeHtml(row.actName || '')}" /></td>
@@ -1226,6 +1275,7 @@
             <div class="action-row">
               <button class="btn secondary small" data-action="up" data-id="${row.id}" ${idx === 0 ? 'disabled' : ''}>Up</button>
               <button class="btn secondary small" data-action="down" data-id="${row.id}" ${idx === scheduled.length - 1 ? 'disabled' : ''}>Down</button>
+              <button class="btn secondary small drag-handle" draggable="true" data-drag-handle="true" data-id="${row.id}" title="Drag to reorder">☰</button>
             </div>
           </td>
           <td>
@@ -1241,7 +1291,6 @@
       clearError();
       const eventId = (els.eventIdInput.value || eventIdFromInputs()).trim();
       const adminPin = els.adminPinInput.value.trim();
-
       if (!eventId) return alert('Please enter an event ID or event name.');
       if (!adminPin) return alert('Please create or enter an admin PIN.');
 
@@ -1275,6 +1324,7 @@
         await setDoc(existingRef, payload, { merge: true });
         state.eventId = eventId;
         state.adminPin = adminPin;
+        saveAdminPinLocal(eventId, adminPin);
         els.eventIdInput.value = eventId;
         els.eventTools.classList.remove('hidden');
         const publicUrl = buildPublicUrl(eventId);
@@ -1306,7 +1356,10 @@
 
         state.eventId = eventId;
         state.event = evt;
-        if (pin) state.adminPin = pin;
+        if (pin) {
+          state.adminPin = pin;
+          saveAdminPinLocal(eventId, pin);
+        }
         els.eventIdInput.value = eventId;
         syncUIWithEvent(evt);
         els.eventTools.classList.remove('hidden');
@@ -1399,7 +1452,6 @@
 
         const ref = await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), payload);
         state.lastSignupId = ref.id;
-
         els.signupNameInput.value = '';
         els.signupActInput.value = '';
         els.signupContactInput.value = '';
@@ -1410,7 +1462,6 @@
         els.duplicateWarning.classList.add('hidden');
         els.submitDuplicateBtn.classList.add('hidden');
         state.pendingDuplicateOverride = false;
-
         showSuccess('Signup submitted. You are on the list.');
       } catch (err) {
         console.error(err);
@@ -1527,7 +1578,6 @@
         if (idx < 0) return;
         const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
         if (swapIdx < 0 || swapIdx >= list.length) return;
-
         const current = list[idx];
         const other = list[swapIdx];
 
@@ -1547,10 +1597,34 @@
       }
     }
 
+    async function reorderSignupBefore(dragId, targetId) {
+      try {
+        const list = [...state.signups].sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+        const fromIndex = list.findIndex(x => x.id === dragId);
+        const toIndex = list.findIndex(x => x.id === targetId);
+        if (fromIndex < 0 || toIndex < 0) return;
+
+        const [moved] = list.splice(fromIndex, 1);
+        list.splice(toIndex, 0, moved);
+
+        const batch = writeBatch(db);
+        list.forEach((item, idx) => {
+          batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), {
+            order: idx + 1,
+            updatedAt: serverTimestamp()
+          });
+        });
+        await batch.commit();
+        showSuccess('Lineup reordered.');
+      } catch (err) {
+        console.error(err);
+        showError(`Drag reorder failed: ${err.message || err}`);
+      }
+    }
+
     function exportCsv() {
       const scheduled = calculateSchedule(state.event, state.signups);
       if (!scheduled.length) return alert('No signups to export.');
-
       const rows = [
         ['Order', 'Performer', 'Act', 'Contact', 'Songs', 'Minutes', 'Estimated Start', 'Status', 'Notes'],
         ...scheduled.map(row => [
@@ -1605,6 +1679,38 @@
         if (action === 'up') await moveSignup(id, 'up');
         if (action === 'down') await moveSignup(id, 'down');
       });
+
+      els.adminTbody.addEventListener('dragstart', (e) => {
+        const handle = e.target.closest('[data-drag-handle="true"]');
+        if (!handle) return;
+        state.dragId = handle.dataset.id;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', state.dragId);
+      });
+
+      els.adminTbody.addEventListener('dragover', (e) => {
+        const row = e.target.closest('tr[data-row-id]');
+        if (!row || !state.dragId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      });
+
+      els.adminTbody.addEventListener('drop', async (e) => {
+        const row = e.target.closest('tr[data-row-id]');
+        if (!row || !state.dragId) return;
+        e.preventDefault();
+        const targetId = row.dataset.rowId;
+        if (!targetId || targetId === state.dragId) {
+          state.dragId = null;
+          return;
+        }
+        await reorderSignupBefore(state.dragId, targetId);
+        state.dragId = null;
+      });
+
+      els.adminTbody.addEventListener('dragend', () => {
+        state.dragId = null;
+      });
     }
 
     function parseUrl() {
@@ -1643,6 +1749,7 @@
     });
 
     els.printPosterBtn.addEventListener('click', () => window.print());
+
     els.downloadPosterQrBtn.addEventListener('click', () => {
       if (!state.eventId) return;
       downloadCanvas(els.posterQrCanvas, `${state.eventId}-poster-qr.png`);
@@ -1681,7 +1788,8 @@
 
     els.loadEventBtn.addEventListener('click', async () => {
       const id = els.eventIdInput.value.trim();
-      const pin = els.adminPinInput.value.trim();
+      const pin = els.adminPinInput.value.trim() || loadAdminPinLocal(id);
+      if (pin && !els.adminPinInput.value.trim()) els.adminPinInput.value = pin;
       await loadEvent(id, pin);
     });
 
@@ -1723,8 +1831,10 @@
 
       if (event) {
         els.eventIdInput.value = event;
+        const localPin = loadAdminPinLocal(event);
+        if (localPin) els.adminPinInput.value = localPin;
         try {
-          await loadEvent(event, '');
+          await loadEvent(event, localPin || '');
           if (view === 'poster' && state.eventId) {
             await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas);
           }
