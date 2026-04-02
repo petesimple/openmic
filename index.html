@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Mic Sign Up</title>
+  <title>Open Mic Sign Up v1.1</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -17,6 +17,7 @@
       --good: #68d391;
       --bad: #fc8181;
       --warn: #f6e05e;
+      --live: #f56565;
       --shadow: 0 18px 50px rgba(0,0,0,.35);
       --radius: 18px;
     }
@@ -35,7 +36,7 @@
     button, input, select, textarea { font: inherit; }
 
     .wrap {
-      width: min(1200px, calc(100% - 24px));
+      width: min(1280px, calc(100% - 24px));
       margin: 24px auto 80px;
     }
 
@@ -121,12 +122,24 @@
       border: 1px solid #7a2f2f;
     }
 
-    .btn.small { padding: 8px 10px; font-size: .92rem; }
+    .btn.good {
+      background: #183d2d;
+      color: #dffff0;
+      border: 1px solid #2b6a50;
+    }
+
+    .btn.live {
+      background: #5a2020;
+      color: #fff1f1;
+      border: 1px solid #a73a3a;
+    }
+
+    .btn.small { padding: 8px 10px; font-size: .9rem; }
     .btn:disabled { opacity: .55; cursor: not-allowed; }
 
     .grid {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 400px 1fr;
       gap: 18px;
       align-items: start;
     }
@@ -140,9 +153,10 @@
 
     .muted { color: var(--muted); }
     .tiny { font-size: .84rem; }
-    .good { color: var(--good); }
+    .good-text { color: var(--good); }
     .warn-text { color: var(--warn); }
     .bad-text { color: var(--bad); }
+    .live-text { color: #ffb3b3; }
 
     .field { margin-bottom: 12px; }
     .field label {
@@ -190,7 +204,7 @@
       background: rgba(255,255,255,.03);
     }
 
-    #qrCanvas {
+    #qrCanvas, #posterQrCanvas {
       max-width: 100%;
       height: auto;
       background: white;
@@ -210,7 +224,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
+      min-width: 1120px;
     }
 
     th, td {
@@ -244,11 +258,18 @@
       font-weight: 700;
       border: 1px solid var(--line);
       background: rgba(255,255,255,.03);
+      white-space: nowrap;
     }
 
     .status.checked { color: var(--good); }
     .status.waitlist { color: var(--warn); }
     .status.noshow { color: var(--bad); }
+    .status.live {
+      color: #fff0f0;
+      background: rgba(245,101,101,.14);
+      border-color: rgba(245,101,101,.4);
+    }
+    .status.done { color: #cfe8ff; }
 
     .action-row {
       display: flex;
@@ -288,9 +309,148 @@
       color: #ffe7e7;
     }
 
-    @media (max-width: 980px) {
-      .hero, .grid, .split { grid-template-columns: 1fr; }
-      .wrap { width: min(100% - 18px, 1200px); }
+    .success-banner {
+      border-color: #245b43;
+      background: rgba(104,211,145,.12);
+      color: #e9fff0;
+    }
+
+    .highlight-card {
+      border: 1px solid rgba(79,209,197,.32);
+      background: linear-gradient(180deg, rgba(79,209,197,.10), rgba(255,255,255,.02));
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .big-number {
+      font-size: clamp(2.1rem, 5vw, 3.5rem);
+      font-weight: 900;
+      line-height: 1;
+      margin: 0 0 6px;
+    }
+
+    .poster-shell {
+      max-width: 920px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, #0b1320, #121c2b 45%, #0d1018);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .poster-header {
+      padding: 26px 24px 8px;
+      text-align: center;
+    }
+
+    .poster-title {
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      margin: 0 0 8px;
+      font-weight: 900;
+      letter-spacing: -.03em;
+    }
+
+    .poster-subtitle {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    .poster-main {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 18px;
+      padding: 18px 24px 28px;
+      align-items: center;
+    }
+
+    .poster-left {
+      display: grid;
+      gap: 14px;
+    }
+
+    .poster-callout {
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .poster-meta {
+      display: grid;
+      gap: 10px;
+    }
+
+    .poster-meta-item {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px;
+      background: rgba(255,255,255,.03);
+    }
+
+    .poster-label {
+      color: var(--muted);
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+
+    .poster-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .poster-right {
+      text-align: center;
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+    }
+
+    .poster-footer {
+      padding: 0 24px 24px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .public-list-card {
+      margin-top: 14px;
+    }
+
+    .public-spotlight {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .dupe-warning {
+      margin-top: 8px;
+      font-size: .92rem;
+      color: var(--warn);
+    }
+
+    @media print {
+      body { background: white; }
+      .wrap > *:not(#posterView) { display: none !important; }
+      #posterView.hidden { display: block !important; }
+      #posterView {
+        margin: 0;
+        padding: 0;
+      }
+      .poster-shell {
+        box-shadow: none;
+        border: 0;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .grid, .split, .poster-main { grid-template-columns: 1fr; }
+      .wrap { width: min(100% - 18px, 1280px); }
     }
   </style>
 </head>
@@ -300,24 +460,25 @@
       <div class="card">
         <div class="card-inner">
           <h1 class="title">Open Mic Sign Up</h1>
-          <p class="subtitle">A GitHub Pages friendly open mic app with a host admin view, a QR powered public sign up page, editable running order, and automatic time slot planning.</p>
+          <p class="subtitle">A GitHub Pages friendly open mic app with a host admin view, QR powered public sign up, editable running order, and automatic slot planning.</p>
           <div class="pillbar">
             <span class="pill">Default: sign up at 6:00 PM</span>
             <span class="pill">Default: show starts at 7:00 PM</span>
             <span class="pill">Default: 3 songs or 15 minutes</span>
-            <span class="pill">Admin can edit anything</span>
+            <span class="pill">Poster view included</span>
           </div>
           <div class="top-actions">
             <button class="btn" id="goAdminBtn">Host Admin</button>
             <button class="btn secondary" id="goSignupBtn">Public Sign Up</button>
+            <button class="btn secondary" id="goPosterBtn">Poster View</button>
           </div>
         </div>
       </div>
       <div class="card">
         <div class="card-inner">
-          <h2 class="section-title">How this works</h2>
-          <p class="subtitle">Hosted on GitHub Pages with Firebase Firestore providing the shared live signup list between the host device and performers’ phones.</p>
-          <p class="tiny muted" style="margin-top:12px;">If event saving fails, the most likely issue is Firestore rules not allowing reads and writes yet.</p>
+          <h2 class="section-title">v1.1 upgrades</h2>
+          <p class="subtitle">Poster view for printing or tablet display, better signup success feedback, duplicate name warnings, check in and now performing controls, and a more venue friendly host workflow.</p>
+          <p class="tiny muted" style="margin-top:12px;">If event saving fails, the most likely issue is still Firestore rules.</p>
         </div>
       </div>
     </section>
@@ -327,6 +488,7 @@
     </div>
 
     <div class="banner error-banner hidden" id="errorBanner"></div>
+    <div class="banner success-banner hidden" id="successBanner"></div>
 
     <section id="adminView" class="grid hidden">
       <div class="card">
@@ -419,6 +581,7 @@
             <div class="top-actions" style="margin-top:0;">
               <button class="btn secondary" id="copyPublicLinkBtn">Copy Link</button>
               <button class="btn warn" id="downloadQrBtn">Download QR</button>
+              <button class="btn secondary" id="openPosterBtn">Open Poster View</button>
             </div>
             <div class="qr-box" style="margin-top:12px;">
               <canvas id="qrCanvas"></canvas>
@@ -470,12 +633,16 @@
               <div class="card-inner">
                 <h3 class="section-title">Night snapshot</h3>
                 <div class="tiny muted" id="snapshotText">No active event yet.</div>
+                <div class="highlight-card" style="margin-top:14px;">
+                  <div class="tiny muted">Now performing</div>
+                  <div style="font-size:1.15rem;font-weight:800;margin-top:4px;" id="nowPerformingText">Nobody marked live yet.</div>
+                </div>
               </div>
             </div>
           </div>
 
           <div class="list-tools">
-            <div class="tiny muted">Move performers up or down to adjust the running order.</div>
+            <div class="tiny muted">Move performers up or down to adjust the running order. Use Check In, Live, and Done to run the room.</div>
             <div class="action-row">
               <button class="btn secondary small" id="recalcBtn">Recalculate Times</button>
             </div>
@@ -493,12 +660,14 @@
                   <th>Minutes</th>
                   <th>Start</th>
                   <th>Status</th>
+                  <th>Host Controls</th>
                   <th>Notes</th>
-                  <th>Actions</th>
+                  <th>Move</th>
+                  <th>Delete</th>
                 </tr>
               </thead>
               <tbody id="adminTbody">
-                <tr><td colspan="10"><div class="empty">No performers yet.</div></td></tr>
+                <tr><td colspan="12"><div class="empty">No performers yet.</div></td></tr>
               </tbody>
             </table>
           </div>
@@ -524,46 +693,111 @@
                 <div class="field"><label>Estimated minutes</label><input id="signupMinutesInput" type="number" min="1" max="60" value="15" /></div>
                 <div class="field"><label>Setup needs</label><input id="signupNotesInput" placeholder="Mic, DI, stool, tracks, etc." /></div>
               </div>
-              <button class="btn" id="submitSignupBtn">Join the List</button>
+              <div id="duplicateWarning" class="dupe-warning hidden"></div>
+              <div class="top-actions">
+                <button class="btn" id="submitSignupBtn">Join the List</button>
+                <button class="btn warn hidden" id="submitDuplicateBtn">Join Anyway</button>
+              </div>
               <div class="tiny muted" style="margin-top:10px;">The host may adjust times, order, and availability to keep the night moving.</div>
             </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-inner">
-            <div class="event-head">
-              <div>
-                <h2 class="event-name" id="publicEventTitle">Open Mic</h2>
-                <div class="muted tiny" id="publicEventMeta">Waiting for event...</div>
+        <div>
+          <div class="card public-list-card">
+            <div class="card-inner">
+              <div class="event-head">
+                <div>
+                  <h2 class="event-name" id="publicEventTitle">Open Mic</h2>
+                  <div class="muted tiny" id="publicEventMeta">Waiting for event...</div>
+                </div>
               </div>
-            </div>
 
-            <div class="field">
-              <label>Host notes</label>
-              <div id="publicHostNotes" class="banner" style="margin:0;">No host notes yet.</div>
-            </div>
+              <div class="public-spotlight">
+                <div class="highlight-card">
+                  <div class="tiny muted">Now performing</div>
+                  <div style="font-size:1.2rem;font-weight:800;margin-top:4px;" id="publicNowPerforming">Nobody marked live yet.</div>
+                </div>
+                <div class="highlight-card hidden" id="signupResultCard">
+                  <div class="tiny muted">You are in the lineup</div>
+                  <div class="big-number" id="signupResultPosition">#1</div>
+                  <div id="signupResultText">Estimated start around 7:00 PM.</div>
+                </div>
+              </div>
 
-            <div class="table-wrap" style="max-height:60vh;">
-              <table>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Performer</th>
-                    <th>Act</th>
-                    <th>Songs</th>
-                    <th>Minutes</th>
-                    <th>Est. Start</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody id="publicTbody">
-                  <tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>
-                </tbody>
-              </table>
+              <div class="field">
+                <label>Host notes</label>
+                <div id="publicHostNotes" class="banner" style="margin:0;">No host notes yet.</div>
+              </div>
+
+              <div class="table-wrap" style="max-height:60vh;">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Performer</th>
+                      <th>Act</th>
+                      <th>Songs</th>
+                      <th>Minutes</th>
+                      <th>Est. Start</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="publicTbody">
+                    <tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section id="posterView" class="hidden">
+      <div class="top-actions" style="margin-bottom:16px;">
+        <button class="btn secondary" id="backFromPosterBtn">Back</button>
+        <button class="btn warn" id="printPosterBtn">Print Poster</button>
+        <button class="btn secondary" id="downloadPosterQrBtn">Download Poster QR</button>
+      </div>
+
+      <div class="poster-shell">
+        <div class="poster-header">
+          <h1 class="poster-title" id="posterTitle">Open Mic Tonight</h1>
+          <p class="poster-subtitle" id="posterSubtitle">Scan the QR code to sign up from your phone.</p>
+        </div>
+        <div class="poster-main">
+          <div class="poster-left">
+            <p class="poster-callout">Scan here to sign up for tonight’s open mic.</p>
+            <div class="poster-meta">
+              <div class="poster-meta-item">
+                <div class="poster-label">Venue</div>
+                <div class="poster-value" id="posterVenue">Your Venue Name</div>
+              </div>
+              <div class="poster-meta-item">
+                <div class="poster-label">Date</div>
+                <div class="poster-value" id="posterDate">Tonight</div>
+              </div>
+              <div class="poster-meta-item">
+                <div class="poster-label">Signups open</div>
+                <div class="poster-value" id="posterSignupOpen">6:00 PM</div>
+              </div>
+              <div class="poster-meta-item">
+                <div class="poster-label">Show starts</div>
+                <div class="poster-value" id="posterShowStart">7:00 PM</div>
+              </div>
+              <div class="poster-meta-item">
+                <div class="poster-label">Typical slot</div>
+                <div class="poster-value" id="posterSlotInfo">3 songs or 15 minutes</div>
+              </div>
+            </div>
+          </div>
+          <div class="poster-right">
+            <canvas id="posterQrCanvas"></canvas>
+            <div class="tiny muted">Point your camera at the code and join the list.</div>
+          </div>
+        </div>
+        <div class="poster-footer" id="posterFooter">Host may adjust order to keep the night moving.</div>
       </div>
     </section>
   </div>
@@ -606,7 +840,9 @@
       event: null,
       signups: [],
       unsub: null,
-      adminPin: ''
+      adminPin: '',
+      pendingDuplicateOverride: false,
+      lastSignupId: null
     };
 
     const $ = (id) => document.getElementById(id);
@@ -614,10 +850,13 @@
     const els = {
       setupBanner: $('setupBanner'),
       errorBanner: $('errorBanner'),
+      successBanner: $('successBanner'),
       adminView: $('adminView'),
       signupView: $('signupView'),
+      posterView: $('posterView'),
       goAdminBtn: $('goAdminBtn'),
       goSignupBtn: $('goSignupBtn'),
+      goPosterBtn: $('goPosterBtn'),
       adminPinInput: $('adminPinInput'),
       eventIdInput: $('eventIdInput'),
       loadEventBtn: $('loadEventBtn'),
@@ -637,15 +876,19 @@
       publicLinkInput: $('publicLinkInput'),
       copyPublicLinkBtn: $('copyPublicLinkBtn'),
       downloadQrBtn: $('downloadQrBtn'),
+      openPosterBtn: $('openPosterBtn'),
       qrCanvas: $('qrCanvas'),
+      posterQrCanvas: $('posterQrCanvas'),
       adminEventTitle: $('adminEventTitle'),
       adminEventMeta: $('adminEventMeta'),
       snapshotText: $('snapshotText'),
+      nowPerformingText: $('nowPerformingText'),
       adminTbody: $('adminTbody'),
       publicTbody: $('publicTbody'),
       publicEventTitle: $('publicEventTitle'),
       publicEventMeta: $('publicEventMeta'),
       publicHostNotes: $('publicHostNotes'),
+      publicNowPerforming: $('publicNowPerforming'),
       signupEventInfo: $('signupEventInfo'),
       signupFormWrap: $('signupFormWrap'),
       signupNameInput: $('signupNameInput'),
@@ -655,6 +898,11 @@
       signupMinutesInput: $('signupMinutesInput'),
       signupNotesInput: $('signupNotesInput'),
       submitSignupBtn: $('submitSignupBtn'),
+      submitDuplicateBtn: $('submitDuplicateBtn'),
+      duplicateWarning: $('duplicateWarning'),
+      signupResultCard: $('signupResultCard'),
+      signupResultPosition: $('signupResultPosition'),
+      signupResultText: $('signupResultText'),
       manualNameInput: $('manualNameInput'),
       manualActInput: $('manualActInput'),
       manualContactInput: $('manualContactInput'),
@@ -665,7 +913,18 @@
       manualAddBtn: $('manualAddBtn'),
       exportCsvBtn: $('exportCsvBtn'),
       refreshBtn: $('refreshBtn'),
-      recalcBtn: $('recalcBtn')
+      recalcBtn: $('recalcBtn'),
+      posterTitle: $('posterTitle'),
+      posterSubtitle: $('posterSubtitle'),
+      posterVenue: $('posterVenue'),
+      posterDate: $('posterDate'),
+      posterSignupOpen: $('posterSignupOpen'),
+      posterShowStart: $('posterShowStart'),
+      posterSlotInfo: $('posterSlotInfo'),
+      posterFooter: $('posterFooter'),
+      backFromPosterBtn: $('backFromPosterBtn'),
+      printPosterBtn: $('printPosterBtn'),
+      downloadPosterQrBtn: $('downloadPosterQrBtn')
     };
 
     const todayLocal = () => {
@@ -687,6 +946,14 @@
     function clearError() {
       els.errorBanner.textContent = '';
       els.errorBanner.classList.add('hidden');
+    }
+
+    function showSuccess(message) {
+      els.successBanner.textContent = message;
+      els.successBanner.classList.remove('hidden');
+      setTimeout(() => {
+        els.successBanner.classList.add('hidden');
+      }, 3000);
     }
 
     function slugify(str) {
@@ -714,11 +981,31 @@
       return dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
     }
 
+    function formatDatePretty(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString([], {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    function escapeHtml(v) {
+      return String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
     function fmtStatus(status) {
       if (status === 'checked_in') return '<span class="status checked">Checked in</span>';
       if (status === 'waitlist') return '<span class="status waitlist">Waitlist</span>';
       if (status === 'no_show') return '<span class="status noshow">No show</span>';
-      if (status === 'done') return '<span class="status">Done</span>';
+      if (status === 'done') return '<span class="status done">Done</span>';
+      if (status === 'live') return '<span class="status live">Now performing</span>';
       return '<span class="status">Signed up</span>';
     }
 
@@ -736,9 +1023,16 @@
       return url.toString();
     }
 
-    async function renderQr(text) {
-      await QRCode.toCanvas(els.qrCanvas, text, {
-        width: 240,
+    function buildPosterUrl(eventId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'poster');
+      url.searchParams.set('event', eventId);
+      return url.toString();
+    }
+
+    async function renderQr(text, canvas) {
+      await QRCode.toCanvas(canvas, text, {
+        width: 280,
         margin: 1,
         color: { dark: '#000000', light: '#ffffff' }
       });
@@ -753,11 +1047,12 @@
 
     function setMode(mode) {
       state.mode = mode;
-      const isAdmin = mode === 'admin';
-      els.adminView.classList.toggle('hidden', !isAdmin);
-      els.signupView.classList.toggle('hidden', isAdmin);
-      els.goAdminBtn.classList.toggle('secondary', !isAdmin);
-      els.goSignupBtn.classList.toggle('secondary', isAdmin);
+      els.adminView.classList.toggle('hidden', mode !== 'admin');
+      els.signupView.classList.toggle('hidden', mode !== 'signup');
+      els.posterView.classList.toggle('hidden', mode !== 'poster');
+      els.goAdminBtn.classList.toggle('secondary', mode !== 'admin');
+      els.goSignupBtn.classList.toggle('secondary', mode !== 'signup');
+      els.goPosterBtn.classList.toggle('secondary', mode !== 'poster');
     }
 
     function eventWindowSummary(evt) {
@@ -797,14 +1092,35 @@
         });
     }
 
+    function getLivePerformer(scheduled) {
+      const live = scheduled.find(x => x.calculatedStatus === 'live');
+      if (!live) return null;
+      return live;
+    }
+
+    function syncPoster(evt) {
+      if (!evt || !state.eventId) return;
+      els.posterTitle.textContent = evt.eventName || 'Open Mic Tonight';
+      els.posterSubtitle.textContent = `Scan the QR code to sign up for ${evt.venue || 'tonight'} from your phone.`;
+      els.posterVenue.textContent = evt.venue || 'Your Venue Name';
+      els.posterDate.textContent = formatDatePretty(evt.eventDate);
+      els.posterSignupOpen.textContent = formatTime(combineDateTime(evt.eventDate, evt.signupOpenTime));
+      els.posterShowStart.textContent = formatTime(combineDateTime(evt.eventDate, evt.showStartTime));
+      els.posterSlotInfo.textContent = `${evt.songLimit} songs or ${evt.slotMinutes} minutes`;
+      els.posterFooter.textContent = evt.hostNotes || 'Host may adjust order to keep the night moving.';
+      renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas).catch(console.error);
+    }
+
     function syncUIWithEvent(evt) {
       if (!evt) {
         els.adminEventTitle.textContent = 'No event loaded';
         els.adminEventMeta.textContent = 'Create a new event or load one by ID.';
         els.snapshotText.textContent = 'No active event yet.';
+        els.nowPerformingText.textContent = 'Nobody marked live yet.';
         els.publicEventTitle.textContent = 'Open Mic';
         els.publicEventMeta.textContent = 'Waiting for event...';
         els.publicHostNotes.textContent = 'No host notes yet.';
+        els.publicNowPerforming.textContent = 'Nobody marked live yet.';
         els.signupEventInfo.textContent = 'Load an event from a QR code or link to sign up.';
         return;
       }
@@ -833,19 +1149,34 @@
       els.songLimitInput.value = evt.songLimit || 3;
       els.bufferMinutesInput.value = evt.bufferMinutes || 0;
       els.hostNotesInput.value = evt.hostNotes || '';
+
+      syncPoster(evt);
     }
 
-    function escapeHtml(v) {
-      return String(v ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    function updateNowPerformingDisplays(scheduled) {
+      const live = getLivePerformer(scheduled);
+      const liveText = live
+        ? `${live.performerName || 'Unnamed performer'}${live.actName ? ` - ${live.actName}` : ''}`
+        : 'Nobody marked live yet.';
+      els.nowPerformingText.textContent = liveText;
+      els.publicNowPerforming.textContent = liveText;
+    }
+
+    function renderSignupResultCard() {
+      if (!state.lastSignupId) return;
+      const scheduled = calculateSchedule(state.event, state.signups);
+      const row = scheduled.find(x => x.id === state.lastSignupId);
+      if (!row) return;
+      els.signupResultCard.classList.remove('hidden');
+      els.signupResultPosition.textContent = `#${row.calcOrder}`;
+      els.signupResultText.textContent = row.estimatedStart
+        ? `Estimated start around ${formatTime(row.estimatedStart)}.`
+        : 'You are currently on the waitlist.';
     }
 
     function renderPublicList() {
       const scheduled = calculateSchedule(state.event, state.signups);
+      updateNowPerformingDisplays(scheduled);
       if (!scheduled.length) {
         els.publicTbody.innerHTML = '<tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>';
         return;
@@ -861,12 +1192,14 @@
           <td>${fmtStatus(row.calculatedStatus)}</td>
         </tr>
       `).join('');
+      renderSignupResultCard();
     }
 
     function renderAdminList() {
       const scheduled = calculateSchedule(state.event, state.signups);
+      updateNowPerformingDisplays(scheduled);
       if (!scheduled.length) {
-        els.adminTbody.innerHTML = '<tr><td colspan="10"><div class="empty">No performers yet.</div></td></tr>';
+        els.adminTbody.innerHTML = '<tr><td colspan="12"><div class="empty">No performers yet.</div></td></tr>';
         renderPublicList();
         return;
       }
@@ -880,22 +1213,23 @@
           <td><input data-id="${row.id}" data-field="songCount" type="number" min="1" max="20" value="${Number(row.songCount || 3)}" /></td>
           <td><input data-id="${row.id}" data-field="minutes" type="number" min="1" max="60" value="${Number(row.minutes || 15)}" /></td>
           <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
+          <td>${fmtStatus(row.calculatedStatus)}</td>
           <td>
-            <select data-id="${row.id}" data-field="status">
-              <option value="signed_up" ${row.calculatedStatus === 'signed_up' ? 'selected' : ''}>Signed up</option>
-              <option value="checked_in" ${row.calculatedStatus === 'checked_in' ? 'selected' : ''}>Checked in</option>
-              <option value="waitlist" ${row.calculatedStatus === 'waitlist' ? 'selected' : ''}>Waitlist</option>
-              <option value="done" ${row.calculatedStatus === 'done' ? 'selected' : ''}>Done</option>
-              <option value="no_show" ${row.calculatedStatus === 'no_show' ? 'selected' : ''}>No show</option>
-            </select>
+            <div class="action-row">
+              <button class="btn good small" data-quick="checked_in" data-id="${row.id}">Check In</button>
+              <button class="btn live small" data-quick="live" data-id="${row.id}">Live</button>
+              <button class="btn secondary small" data-quick="done" data-id="${row.id}">Done</button>
+            </div>
           </td>
           <td><input data-id="${row.id}" data-field="notes" value="${escapeHtml(row.notes || '')}" /></td>
           <td>
             <div class="action-row">
               <button class="btn secondary small" data-action="up" data-id="${row.id}" ${idx === 0 ? 'disabled' : ''}>Up</button>
               <button class="btn secondary small" data-action="down" data-id="${row.id}" ${idx === scheduled.length - 1 ? 'disabled' : ''}>Down</button>
-              <button class="btn bad small" data-action="delete" data-id="${row.id}">Delete</button>
             </div>
+          </td>
+          <td>
+            <button class="btn bad small" data-action="delete" data-id="${row.id}">Delete</button>
           </td>
         </tr>
       `).join('');
@@ -908,14 +1242,8 @@
       const eventId = (els.eventIdInput.value || eventIdFromInputs()).trim();
       const adminPin = els.adminPinInput.value.trim();
 
-      if (!eventId) {
-        alert('Please enter an event ID or event name.');
-        return;
-      }
-      if (!adminPin) {
-        alert('Please create or enter an admin PIN.');
-        return;
-      }
+      if (!eventId) return alert('Please enter an event ID or event name.');
+      if (!adminPin) return alert('Please create or enter an admin PIN.');
 
       try {
         const existingRef = doc(db, 'openMicEvents', eventId);
@@ -923,13 +1251,9 @@
 
         if (existingSnap.exists()) {
           const current = existingSnap.data();
-          if (current.adminPin !== adminPin) {
-            alert('Admin PIN does not match this event.');
-            return;
-          }
+          if (current.adminPin !== adminPin) return alert('Admin PIN does not match this event.');
         } else if (!createIfNew) {
-          alert('Event was not found.');
-          return;
+          return alert('Event was not found.');
         }
 
         const payload = {
@@ -953,13 +1277,12 @@
         state.adminPin = adminPin;
         els.eventIdInput.value = eventId;
         els.eventTools.classList.remove('hidden');
-
         const publicUrl = buildPublicUrl(eventId);
         els.publicLinkInput.value = publicUrl;
-        await renderQr(publicUrl);
-
+        await renderQr(publicUrl, els.qrCanvas);
         history.replaceState({}, '', buildAdminUrl(eventId));
         await loadEvent(eventId, adminPin);
+        showSuccess('Event saved. QR and signup page are ready.');
       } catch (err) {
         console.error(err);
         if (err?.code === 'permission-denied') {
@@ -972,23 +1295,14 @@
 
     async function loadEvent(eventId, pin) {
       clearError();
-      if (!eventId) {
-        alert('Enter an event ID first.');
-        return;
-      }
+      if (!eventId) return alert('Enter an event ID first.');
 
       try {
         const snap = await getDoc(doc(db, 'openMicEvents', eventId));
-        if (!snap.exists()) {
-          alert('Event not found.');
-          return;
-        }
+        if (!snap.exists()) return alert('Event not found.');
 
         const evt = snap.data();
-        if (state.mode === 'admin' && pin && evt.adminPin !== pin) {
-          alert('Admin PIN does not match.');
-          return;
-        }
+        if (state.mode === 'admin' && pin && evt.adminPin !== pin) return alert('Admin PIN does not match.');
 
         state.eventId = eventId;
         state.event = evt;
@@ -997,7 +1311,8 @@
         syncUIWithEvent(evt);
         els.eventTools.classList.remove('hidden');
         els.publicLinkInput.value = buildPublicUrl(eventId);
-        await renderQr(buildPublicUrl(eventId));
+        await renderQr(buildPublicUrl(eventId), els.qrCanvas);
+        await renderQr(buildPublicUrl(eventId), els.posterQrCanvas);
         subscribeToSignups(eventId);
       } catch (err) {
         console.error(err);
@@ -1011,7 +1326,6 @@
 
     function subscribeToSignups(eventId) {
       if (state.unsub) state.unsub();
-
       const q = query(collection(db, 'openMicEvents', eventId, 'signups'), orderBy('order', 'asc'));
       state.unsub = onSnapshot(q, (snap) => {
         state.signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1027,16 +1341,41 @@
       });
     }
 
-    async function submitPublicSignup() {
-      clearError();
-      if (!state.eventId || !state.event) {
-        alert('No event is loaded.');
-        return;
-      }
+    function getDuplicateMatches(name, contact) {
+      const normalizedName = String(name || '').trim().toLowerCase();
+      const normalizedContact = String(contact || '').trim().toLowerCase();
+      return state.signups.filter(item => {
+        const itemName = String(item.performerName || '').trim().toLowerCase();
+        const itemContact = String(item.contact || '').trim().toLowerCase();
+        return (normalizedName && itemName === normalizedName) || (normalizedContact && itemContact === normalizedContact);
+      });
+    }
 
+    function updateDuplicateWarning() {
+      const matches = getDuplicateMatches(els.signupNameInput.value, els.signupContactInput.value);
+      if (matches.length) {
+        const names = matches.map(x => x.performerName).filter(Boolean).join(', ');
+        els.duplicateWarning.textContent = `Heads up: this looks like a duplicate signup for ${names}.`;
+        els.duplicateWarning.classList.remove('hidden');
+        els.submitDuplicateBtn.classList.remove('hidden');
+      } else {
+        els.duplicateWarning.textContent = '';
+        els.duplicateWarning.classList.add('hidden');
+        els.submitDuplicateBtn.classList.add('hidden');
+        state.pendingDuplicateOverride = false;
+      }
+    }
+
+    async function createSignup(forceDuplicate = false) {
+      clearError();
+      if (!state.eventId || !state.event) return alert('No event is loaded.');
       const performerName = els.signupNameInput.value.trim();
-      if (!performerName) {
-        alert('Please enter your name.');
+      if (!performerName) return alert('Please enter your name.');
+
+      const matches = getDuplicateMatches(performerName, els.signupContactInput.value.trim());
+      if (matches.length && !forceDuplicate) {
+        state.pendingDuplicateOverride = true;
+        updateDuplicateWarning();
         return;
       }
 
@@ -1058,7 +1397,8 @@
           updatedAt: serverTimestamp()
         };
 
-        await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), payload);
+        const ref = await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), payload);
+        state.lastSignupId = ref.id;
 
         els.signupNameInput.value = '';
         els.signupActInput.value = '';
@@ -1066,8 +1406,12 @@
         els.signupSongsInput.value = String(state.event.songLimit || 3);
         els.signupMinutesInput.value = String(state.event.slotMinutes || 15);
         els.signupNotesInput.value = '';
+        els.duplicateWarning.textContent = '';
+        els.duplicateWarning.classList.add('hidden');
+        els.submitDuplicateBtn.classList.add('hidden');
+        state.pendingDuplicateOverride = false;
 
-        alert('You are on the list.');
+        showSuccess('Signup submitted. You are on the list.');
       } catch (err) {
         console.error(err);
         if (err?.code === 'permission-denied') {
@@ -1080,16 +1424,9 @@
 
     async function addManualPerformer() {
       clearError();
-      if (!state.eventId || !state.event || !state.adminPin) {
-        alert('Load an event in admin mode first.');
-        return;
-      }
-
+      if (!state.eventId || !state.event || !state.adminPin) return alert('Load an event in admin mode first.');
       const performerName = els.manualNameInput.value.trim();
-      if (!performerName) {
-        alert('Please enter a performer name.');
-        return;
-      }
+      if (!performerName) return alert('Please enter a performer name.');
 
       try {
         await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), {
@@ -1105,7 +1442,6 @@
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         });
-
         els.manualNameInput.value = '';
         els.manualActInput.value = '';
         els.manualContactInput.value = '';
@@ -1113,6 +1449,7 @@
         els.manualMinutesInput.value = String(state.event?.slotMinutes || 15);
         els.manualStatusInput.value = 'signed_up';
         els.manualNotesInput.value = '';
+        showSuccess('Performer added.');
       } catch (err) {
         console.error(err);
         showError(`Manual add failed: ${err.message || err}`);
@@ -1129,6 +1466,27 @@
       } catch (err) {
         console.error(err);
         showError(`Update failed: ${err.message || err}`);
+      }
+    }
+
+    async function markSignupStatus(id, nextStatus) {
+      try {
+        if (nextStatus === 'live') {
+          const batch = writeBatch(db);
+          state.signups.forEach(item => {
+            const targetStatus = item.id === id ? 'live' : (item.status === 'live' ? 'checked_in' : item.status);
+            batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), {
+              status: targetStatus,
+              updatedAt: serverTimestamp()
+            });
+          });
+          await batch.commit();
+          return;
+        }
+        await updateSignup(id, { status: nextStatus });
+      } catch (err) {
+        console.error(err);
+        showError(`Status update failed: ${err.message || err}`);
       }
     }
 
@@ -1191,10 +1549,7 @@
 
     function exportCsv() {
       const scheduled = calculateSchedule(state.event, state.signups);
-      if (!scheduled.length) {
-        alert('No signups to export.');
-        return;
-      }
+      if (!scheduled.length) return alert('No signups to export.');
 
       const rows = [
         ['Order', 'Performer', 'Act', 'Contact', 'Songs', 'Minutes', 'Estimated Start', 'Status', 'Notes'],
@@ -1237,6 +1592,11 @@
       });
 
       els.adminTbody.addEventListener('click', async (e) => {
+        const quickBtn = e.target.closest('button[data-quick]');
+        if (quickBtn) {
+          await markSignupStatus(quickBtn.dataset.id, quickBtn.dataset.quick);
+          return;
+        }
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
         const id = btn.dataset.id;
@@ -1254,18 +1614,38 @@
       return { view, event };
     }
 
+    function updateUrlForMode(mode) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', mode);
+      if (state.eventId) url.searchParams.set('event', state.eventId);
+      history.replaceState({}, '', url.toString());
+    }
+
     els.goAdminBtn.addEventListener('click', () => {
       setMode('admin');
-      const url = new URL(window.location.href);
-      url.searchParams.set('view', 'admin');
-      history.replaceState({}, '', url.toString());
+      updateUrlForMode('admin');
     });
 
     els.goSignupBtn.addEventListener('click', () => {
       setMode('signup');
-      const url = new URL(window.location.href);
-      url.searchParams.set('view', 'signup');
-      history.replaceState({}, '', url.toString());
+      updateUrlForMode('signup');
+    });
+
+    els.goPosterBtn.addEventListener('click', async () => {
+      setMode('poster');
+      updateUrlForMode('poster');
+      if (state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas);
+    });
+
+    els.backFromPosterBtn.addEventListener('click', () => {
+      setMode('admin');
+      updateUrlForMode('admin');
+    });
+
+    els.printPosterBtn.addEventListener('click', () => window.print());
+    els.downloadPosterQrBtn.addEventListener('click', () => {
+      if (!state.eventId) return;
+      downloadCanvas(els.posterQrCanvas, `${state.eventId}-poster-qr.png`);
     });
 
     els.saveEventBtn.addEventListener('click', () => saveEvent(true));
@@ -1274,6 +1654,7 @@
       clearError();
       state.eventId = '';
       state.event = null;
+      state.lastSignupId = null;
       if (state.unsub) {
         state.unsub();
         state.unsub = null;
@@ -1292,8 +1673,10 @@
       els.bufferMinutesInput.value = '0';
       els.hostNotesInput.value = '';
       els.eventTools.classList.add('hidden');
+      els.signupResultCard.classList.add('hidden');
       syncUIWithEvent(null);
       renderAdminList();
+      showSuccess('New event draft ready.');
     });
 
     els.loadEventBtn.addEventListener('click', async () => {
@@ -1306,7 +1689,7 @@
       const link = els.publicLinkInput.value.trim();
       if (!link) return;
       await navigator.clipboard.writeText(link);
-      alert('Public signup link copied.');
+      showSuccess('Public signup link copied.');
     });
 
     els.downloadQrBtn.addEventListener('click', () => {
@@ -1314,7 +1697,17 @@
       downloadCanvas(els.qrCanvas, `${state.eventId}-qr.png`);
     });
 
-    els.submitSignupBtn.addEventListener('click', submitPublicSignup);
+    els.openPosterBtn.addEventListener('click', async () => {
+      setMode('poster');
+      history.replaceState({}, '', buildPosterUrl(state.eventId));
+      if (state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas);
+    });
+
+    els.submitSignupBtn.addEventListener('click', () => createSignup(false));
+    els.submitDuplicateBtn.addEventListener('click', () => createSignup(true));
+    els.signupNameInput.addEventListener('input', updateDuplicateWarning);
+    els.signupContactInput.addEventListener('input', updateDuplicateWarning);
+
     els.manualAddBtn.addEventListener('click', addManualPerformer);
     els.exportCsvBtn.addEventListener('click', exportCsv);
     els.refreshBtn.addEventListener('click', async () => {
@@ -1326,12 +1719,15 @@
 
     (async function init() {
       const { view, event } = parseUrl();
-      setMode(view === 'signup' ? 'signup' : 'admin');
+      setMode(view === 'signup' ? 'signup' : view === 'poster' ? 'poster' : 'admin');
 
       if (event) {
         els.eventIdInput.value = event;
         try {
           await loadEvent(event, '');
+          if (view === 'poster' && state.eventId) {
+            await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas);
+          }
         } catch (err) {
           console.error(err);
           showError(`Init failed: ${err.message || err}`);
