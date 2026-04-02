@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open Mic Sign Up</title>
+  <style>
+    :root {
+      --bg: #0b0f14;
+      --panel: #141b22;
+      --panel-2: #1b2430;
+      --text: #eef4ff;
+      --muted: #9fb0c4;
+      --line: #2a3645;
+      --accent: #4fd1c5;
+      --accent-2: #f6ad55;
+      --good: #68d391;
+      --bad: #fc8181;
+      --warn: #f6e05e;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(180deg, #091018, #111827 40%, #0b0f14); color: var(--text); }
+    body { min-height: 100vh; }
+
+    a { color: var(--accent); }
+    button, input, select, textarea { font: inherit; }
+
+    .wrap {
+      width: min(1200px, calc(100% - 24px));
+      margin: 24px auto 80px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: rgba(20,27,34,.92);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .card-inner { padding: 18px; }
+
+    .title {
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin: 0 0 8px;
+      letter-spacing: -.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 1rem;
+    }
+
+    .pillbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      background: var(--accent);
+      color: #06211f;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn.secondary {
+      background: #243241;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn.warn {
+      background: var(--accent-2);
+      color: #2f1b00;
+    }
+
+    .btn.bad {
+      background: #5a2020;
+      color: #ffe4e4;
+      border: 1px solid #7a2f2f;
+    }
+
+    .btn.small { padding: 8px 10px; font-size: .92rem; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: .01em;
+    }
+
+    .muted { color: var(--muted); }
+    .tiny { font-size: .84rem; }
+    .good { color: var(--good); }
+    .warn-text { color: var(--warn); }
+    .bad-text { color: var(--bad); }
+
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      font-size: .9rem;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    input, select, textarea {
+      width: 100%;
+      background: #0d141c;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    textarea { min-height: 88px; resize: vertical; }
+
+    .event-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 12px;
+    }
+
+    .event-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .qr-box {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.03);
+    }
+
+    #qrCanvas { max-width: 100%; height: auto; background: white; padding: 8px; border-radius: 12px; }
+
+    .list-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      vertical-align: top;
+      text-align: left;
+      font-size: .95rem;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: .84rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      position: sticky;
+      top: 0;
+      background: #141b22;
+      z-index: 1;
+    }
+
+    .table-wrap { overflow: auto; max-height: 70vh; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: .8rem;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+    }
+
+    .status.checked { color: var(--good); }
+    .status.waitlist { color: var(--warn); }
+    .status.noshow { color: var(--bad); }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .center { text-align: center; }
+    .hidden { display: none !important; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .banner {
+      border: 1px solid #34506c;
+      background: rgba(79,209,197,.08);
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: #dffdf9;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .hero, .grid, .split { grid-template-columns: 1fr; }
+      .wrap { width: min(100% - 18px, 1200px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="card">
+        <div class="card-inner">
+          <h1 class="title">Open Mic Sign Up</h1>
+          <p class="subtitle">A GitHub Pages friendly open mic app with an admin host view, a QR-powered public sign up page, editable running order, and automatic time slot planning.</p>
+          <div class="pillbar">
+            <span class="pill">Default: sign up at 6:00 PM</span>
+            <span class="pill">Default: show starts at 7:00 PM</span>
+            <span class="pill">Default: 3 songs or 15 minutes</span>
+            <span class="pill">Admin can edit anything</span>
+          </div>
+          <div class="top-actions">
+            <button class="btn" id="goAdminBtn">Host Admin</button>
+            <button class="btn secondary" id="goSignupBtn">Public Sign Up</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-inner">
+          <h2 class="section-title">How this is built</h2>
+          <p class="subtitle">This starter uses GitHub Pages for hosting and Firebase Firestore for the shared live data. That gives you a static front end with a real-time sign up list that works across phones and the admin laptop.</p>
+          <p class="tiny muted" style="margin-top:12px;">Important: GitHub Pages alone cannot share live signups between different devices. The shared list needs a backend. Firebase is the easiest path for this kind of app.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="banner" id="setupBanner">
+      Paste your Firebase config in the code first, then deploy to GitHub Pages. After that, the host can create an event, generate a QR, and performers can sign up from their phones.
+    </div>
+
+    <section id="adminView" class="grid hidden">
+      <div class="card">
+        <div class="card-inner">
+          <h2 class="section-title">Host Admin</h2>
+
+          <div class="field">
+            <label>Admin PIN for event editing</label>
+            <input id="adminPinInput" type="password" placeholder="Create or enter event PIN" />
+          </div>
+
+          <div class="field">
+            <label>Load event by ID</label>
+            <div class="row">
+              <input id="eventIdInput" placeholder="Example: openmic-friday" />
+              <button class="btn secondary" id="loadEventBtn">Load Event</button>
+            </div>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:16px 0;" />
+
+          <h3 class="section-title">Create or update event</h3>
+
+          <div class="field">
+            <label>Event name</label>
+            <input id="eventNameInput" value="Weekly Open Mic" />
+          </div>
+
+          <div class="field">
+            <label>Venue</label>
+            <input id="venueInput" value="Your Venue Name" />
+          </div>
+
+          <div class="field">
+            <label>Date</label>
+            <input id="eventDateInput" type="date" />
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Sign up opens</label>
+              <input id="signupOpenInput" type="time" value="18:00" />
+            </div>
+            <div class="field">
+              <label>Show starts</label>
+              <input id="showStartInput" type="time" value="19:00" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Venue closes</label>
+              <input id="venueCloseInput" type="time" value="23:00" />
+            </div>
+            <div class="field">
+              <label>Minutes per act</label>
+              <input id="slotMinutesInput" type="number" min="1" max="120" value="15" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label>Song limit</label>
+              <input id="songLimitInput" type="number" min="1" max="20" value="3" />
+            </div>
+            <div class="field">
+              <label>Estimated buffer per act (min)</label>
+              <input id="bufferMinutesInput" type="number" min="0" max="60" value="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Public host notes</label>
+            <textarea id="hostNotesInput" placeholder="Example: Solo acts first, groups please note setup needs, late arrivals may be moved."></textarea>
+          </div>
+
+          <div class="top-actions">
+            <button class="btn" id="saveEventBtn">Save Event</button>
+            <button class="btn secondary" id="newEventBtn">New Event Draft</button>
+          </div>
+
+          <hr style="border:none;border-top:1px solid var(--line);margin:18px 0;" />
+
+          <div id="eventTools" class="hidden">
+            <h3 class="section-title">Share and QR</h3>
+            <div class="field">
+              <label>Public signup link</label>
+              <input id="publicLinkInput" readonly />
+            </div>
+            <div class="top-actions" style="margin-top:0;">
+              <button class="btn secondary" id="copyPublicLinkBtn">Copy Link</button>
+              <button class="btn warn" id="downloadQrBtn">Download QR</button>
+            </div>
+            <div class="qr-box" style="margin-top:12px;">
+              <canvas id="qrCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-inner">
+          <div class="event-head">
+            <div>
+              <h2 class="event-name" id="adminEventTitle">No event loaded</h2>
+              <div class="muted tiny" id="adminEventMeta">Create a new event or load one by ID.</div>
+            </div>
+            <div class="action-row">
+              <button class="btn secondary small" id="exportCsvBtn">Export CSV</button>
+              <button class="btn secondary small" id="refreshBtn">Refresh</button>
+            </div>
+          </div>
+
+          <div class="split" style="margin-bottom:16px;">
+            <div class="card" style="background:rgba(255,255,255,.02);box-shadow:none;">
+              <div class="card-inner">
+                <h3 class="section-title">Add performer manually</h3>
+                <div class="field"><label>Name</label><input id="manualNameInput" placeholder="Performer name" /></div>
+                <div class="row">
+                  <div class="field"><label>Act / Band</label><input id="manualActInput" placeholder="Band or act name" /></div>
+                  <div class="field"><label>Phone or contact</label><input id="manualContactInput" placeholder="Optional" /></div>
+                </div>
+                <div class="row-3">
+                  <div class="field"><label>Songs</label><input id="manualSongsInput" type="number" min="1" max="20" value="3" /></div>
+                  <div class="field"><label>Minutes</label><input id="manualMinutesInput" type="number" min="1" max="60" value="15" /></div>
+                  <div class="field"><label>Status</label>
+                    <select id="manualStatusInput">
+                      <option value="signed_up">Signed up</option>
+                      <option value="checked_in">Checked in</option>
+                      <option value="waitlist">Waitlist</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field"><label>Notes</label><input id="manualNotesInput" placeholder="Example: Needs DI box" /></div>
+                <button class="btn" id="manualAddBtn">Add Performer</button>
+              </div>
+            </div>
+
+            <div class="card" style="background:rgba(255,255,255,.02);box-shadow:none;">
+              <div class="card-inner">
+                <h3 class="section-title">Night snapshot</h3>
+                <div class="tiny muted" id="snapshotText">No active event yet.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-tools">
+            <div class="tiny muted">Drag-and-drop is not included in this first pass, but you can move performers up or down with buttons.</div>
+            <div class="action-row">
+              <button class="btn secondary small" id="recalcBtn">Recalculate Times</button>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Performer</th>
+                  <th>Act</th>
+                  <th>Contact</th>
+                  <th>Songs</th>
+                  <th>Minutes</th>
+                  <th>Start</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminTbody">
+                <tr><td colspan="10"><div class="empty">No performers yet.</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="signupView" class="hidden">
+      <div class="grid">
+        <div class="card">
+          <div class="card-inner">
+            <h2 class="section-title">Sign Up</h2>
+            <div id="signupEventInfo" class="muted">Load an event from a QR code or link to sign up.</div>
+
+            <div id="signupFormWrap" class="hidden" style="margin-top:16px;">
+              <div class="field"><label>Your name</label><input id="signupNameInput" placeholder="Your name" /></div>
+              <div class="field"><label>Act / Band name</label><input id="signupActInput" placeholder="Optional act or band name" /></div>
+              <div class="row">
+                <div class="field"><label>Phone or contact</label><input id="signupContactInput" placeholder="Optional" /></div>
+                <div class="field"><label>Song count</label><input id="signupSongsInput" type="number" min="1" max="20" value="3" /></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>Estimated minutes</label><input id="signupMinutesInput" type="number" min="1" max="60" value="15" /></div>
+                <div class="field"><label>Setup needs</label><input id="signupNotesInput" placeholder="Mic, DI, stool, tracks, etc." /></div>
+              </div>
+              <button class="btn" id="submitSignupBtn">Join the List</button>
+              <div class="tiny muted" style="margin-top:10px;">The host may adjust times, order, and availability to keep the night moving.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-inner">
+            <div class="event-head">
+              <div>
+                <h2 class="event-name" id="publicEventTitle">Open Mic</h2>
+                <div class="muted tiny" id="publicEventMeta">Waiting for event...</div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Host notes</label>
+              <div id="publicHostNotes" class="banner" style="margin:0;">No host notes yet.</div>
+            </div>
+
+            <div class="table-wrap" style="max-height:60vh;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Performer</th>
+                    <th>Act</th>
+                    <th>Songs</th>
+                    <th>Minutes</th>
+                    <th>Est. Start</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="publicTbody">
+                  <tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      addDoc,
+      collection,
+      onSnapshot,
+      query,
+      orderBy,
+      updateDoc,
+      deleteDoc,
+      serverTimestamp,
+      writeBatch
+    } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+    // 1) Replace with your Firebase project config.
+    // 2) For GitHub Pages, also add your deployed domain in Firebase Authentication / Authorized Domains if you later enable auth.
+    const firebaseConfig = {
+      apiKey: 'PASTE_YOURS',
+      authDomain: 'PASTE_YOURS',
+      projectId: 'PASTE_YOURS',
+      storageBucket: 'PASTE_YOURS',
+      messagingSenderId: 'PASTE_YOURS',
+      appId: 'PASTE_YOURS'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const state = {
+      mode: 'admin',
+      eventId: '',
+      event: null,
+      signups: [],
+      unsub: null,
+      adminPin: ''
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    const els = {
+      setupBanner: $('setupBanner'),
+      adminView: $('adminView'),
+      signupView: $('signupView'),
+      goAdminBtn: $('goAdminBtn'),
+      goSignupBtn: $('goSignupBtn'),
+      adminPinInput: $('adminPinInput'),
+      eventIdInput: $('eventIdInput'),
+      loadEventBtn: $('loadEventBtn'),
+      eventNameInput: $('eventNameInput'),
+      venueInput: $('venueInput'),
+      eventDateInput: $('eventDateInput'),
+      signupOpenInput: $('signupOpenInput'),
+      showStartInput: $('showStartInput'),
+      venueCloseInput: $('venueCloseInput'),
+      slotMinutesInput: $('slotMinutesInput'),
+      songLimitInput: $('songLimitInput'),
+      bufferMinutesInput: $('bufferMinutesInput'),
+      hostNotesInput: $('hostNotesInput'),
+      saveEventBtn: $('saveEventBtn'),
+      newEventBtn: $('newEventBtn'),
+      eventTools: $('eventTools'),
+      publicLinkInput: $('publicLinkInput'),
+      copyPublicLinkBtn: $('copyPublicLinkBtn'),
+      downloadQrBtn: $('downloadQrBtn'),
+      qrCanvas: $('qrCanvas'),
+      adminEventTitle: $('adminEventTitle'),
+      adminEventMeta: $('adminEventMeta'),
+      snapshotText: $('snapshotText'),
+      adminTbody: $('adminTbody'),
+      publicTbody: $('publicTbody'),
+      publicEventTitle: $('publicEventTitle'),
+      publicEventMeta: $('publicEventMeta'),
+      publicHostNotes: $('publicHostNotes'),
+      signupEventInfo: $('signupEventInfo'),
+      signupFormWrap: $('signupFormWrap'),
+      signupNameInput: $('signupNameInput'),
+      signupActInput: $('signupActInput'),
+      signupContactInput: $('signupContactInput'),
+      signupSongsInput: $('signupSongsInput'),
+      signupMinutesInput: $('signupMinutesInput'),
+      signupNotesInput: $('signupNotesInput'),
+      submitSignupBtn: $('submitSignupBtn'),
+      manualNameInput: $('manualNameInput'),
+      manualActInput: $('manualActInput'),
+      manualContactInput: $('manualContactInput'),
+      manualSongsInput: $('manualSongsInput'),
+      manualMinutesInput: $('manualMinutesInput'),
+      manualStatusInput: $('manualStatusInput'),
+      manualNotesInput: $('manualNotesInput'),
+      manualAddBtn: $('manualAddBtn'),
+      exportCsvBtn: $('exportCsvBtn'),
+      refreshBtn: $('refreshBtn'),
+      recalcBtn: $('recalcBtn')
+    };
+
+    const todayLocal = () => new Date().toISOString().slice(0, 10);
+    if (!els.eventDateInput.value) els.eventDateInput.value = todayLocal();
+
+    function slugify(str) {
+      return String(str || '')
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+        .slice(0, 60) || `event-${Date.now()}`;
+    }
+
+    function eventIdFromInputs() {
+      const name = els.eventNameInput.value || 'weekly-open-mic';
+      const date = els.eventDateInput.value || todayLocal();
+      return slugify(`${name}-${date}`);
+    }
+
+    function combineDateTime(dateStr, timeStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const [hh, mm] = timeStr.split(':').map(Number);
+      return new Date(y, m - 1, d, hh, mm, 0, 0);
+    }
+
+    function formatTime(dateObj) {
+      return dateObj.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+
+    function fmtStatus(status) {
+      if (status === 'checked_in') return '<span class="status checked">Checked in</span>';
+      if (status === 'waitlist') return '<span class="status waitlist">Waitlist</span>';
+      if (status === 'no_show') return '<span class="status noshow">No show</span>';
+      if (status === 'done') return '<span class="status">Done</span>';
+      return '<span class="status">Signed up</span>';
+    }
+
+    function buildPublicUrl(eventId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'signup');
+      url.searchParams.set('event', eventId);
+      url.searchParams.delete('admin');
+      url.searchParams.delete('pin');
+      return url.toString();
+    }
+
+    function buildAdminUrl(eventId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'admin');
+      url.searchParams.set('event', eventId);
+      return url.toString();
+    }
+
+    async function renderQr(text) {
+      if (!window.QRCode) return;
+      await QRCode.toCanvas(els.qrCanvas, text, {
+        width: 240,
+        margin: 1,
+        color: { dark: '#000000', light: '#ffffff' }
+      });
+    }
+
+    function downloadCanvas(canvas, filename) {
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = filename;
+      a.click();
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      const isAdmin = mode === 'admin';
+      els.adminView.classList.toggle('hidden', !isAdmin);
+      els.signupView.classList.toggle('hidden', isAdmin);
+      els.goAdminBtn.classList.toggle('secondary', !isAdmin);
+      els.goSignupBtn.classList.toggle('secondary', isAdmin);
+    }
+
+    function eventWindowSummary(evt) {
+      if (!evt) return 'No active event yet.';
+      const start = combineDateTime(evt.eventDate, evt.showStartTime);
+      const close = combineDateTime(evt.eventDate, evt.venueCloseTime);
+      const totalMin = Math.max(0, Math.round((close - start) / 60000));
+      const slotMin = Number(evt.slotMinutes || 15) + Number(evt.bufferMinutes || 0);
+      const capacity = slotMin > 0 ? Math.floor(totalMin / slotMin) : 0;
+      const active = state.signups.filter(s => s.status !== 'no_show').length;
+      return `${evt.venue || 'Venue'} • ${evt.eventDate} • ${formatTime(start)} to ${formatTime(close)} • Around ${capacity} full slots • ${active} current signups`;
+    }
+
+    function calculateSchedule(eventData, signups) {
+      if (!eventData) return [];
+      const showStart = combineDateTime(eventData.eventDate, eventData.showStartTime);
+      const venueClose = combineDateTime(eventData.eventDate, eventData.venueCloseTime);
+      const defaultSlot = Number(eventData.slotMinutes || 15);
+      const buffer = Number(eventData.bufferMinutes || 0);
+      let cursor = new Date(showStart);
+
+      return [...signups]
+        .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
+        .map((item, idx) => {
+          const minutes = Number(item.minutes || defaultSlot);
+          const block = minutes + buffer;
+          const start = new Date(cursor);
+          const end = new Date(cursor.getTime() + block * 60000);
+          const waitlist = end > venueClose || item.status === 'waitlist';
+          if (!waitlist) cursor = end;
+          return {
+            ...item,
+            calcOrder: idx + 1,
+            estimatedStart: waitlist ? null : start,
+            calculatedStatus: waitlist && item.status === 'signed_up' ? 'waitlist' : item.status
+          };
+        });
+    }
+
+    function syncUIWithEvent(evt) {
+      if (!evt) {
+        els.adminEventTitle.textContent = 'No event loaded';
+        els.adminEventMeta.textContent = 'Create a new event or load one by ID.';
+        els.snapshotText.textContent = 'No active event yet.';
+        els.publicEventTitle.textContent = 'Open Mic';
+        els.publicEventMeta.textContent = 'Waiting for event...';
+        els.publicHostNotes.textContent = 'No host notes yet.';
+        els.signupEventInfo.textContent = 'Load an event from a QR code or link to sign up.';
+        return;
+      }
+
+      const start = combineDateTime(evt.eventDate, evt.showStartTime);
+      const open = combineDateTime(evt.eventDate, evt.signupOpenTime);
+      const close = combineDateTime(evt.eventDate, evt.venueCloseTime);
+      const meta = `${evt.venue || 'Venue'} • ${evt.eventDate} • Signups ${formatTime(open)} • Show ${formatTime(start)} • Closes ${formatTime(close)}`;
+
+      els.adminEventTitle.textContent = evt.eventName;
+      els.adminEventMeta.textContent = meta;
+      els.snapshotText.textContent = eventWindowSummary(evt);
+      els.publicEventTitle.textContent = evt.eventName;
+      els.publicEventMeta.textContent = meta;
+      els.publicHostNotes.textContent = evt.hostNotes || 'No host notes yet.';
+      els.signupEventInfo.innerHTML = `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Limit: ${evt.songLimit} songs or about ${evt.slotMinutes} minutes.</span>`;
+      els.signupFormWrap.classList.remove('hidden');
+
+      els.eventNameInput.value = evt.eventName || '';
+      els.venueInput.value = evt.venue || '';
+      els.eventDateInput.value = evt.eventDate || todayLocal();
+      els.signupOpenInput.value = evt.signupOpenTime || '18:00';
+      els.showStartInput.value = evt.showStartTime || '19:00';
+      els.venueCloseInput.value = evt.venueCloseTime || '23:00';
+      els.slotMinutesInput.value = evt.slotMinutes || 15;
+      els.songLimitInput.value = evt.songLimit || 3;
+      els.bufferMinutesInput.value = evt.bufferMinutes || 0;
+      els.hostNotesInput.value = evt.hostNotes || '';
+    }
+
+    function renderPublicList() {
+      const scheduled = calculateSchedule(state.event, state.signups);
+      if (!scheduled.length) {
+        els.publicTbody.innerHTML = '<tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>';
+        return;
+      }
+      els.publicTbody.innerHTML = scheduled.map((row) => `
+        <tr>
+          <td>${row.calcOrder}</td>
+          <td>${escapeHtml(row.performerName || '')}</td>
+          <td>${escapeHtml(row.actName || '')}</td>
+          <td>${Number(row.songCount || '')}</td>
+          <td>${Number(row.minutes || '')}</td>
+          <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
+          <td>${fmtStatus(row.calculatedStatus)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function escapeHtml(v) {
+      return String(v ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderAdminList() {
+      const scheduled = calculateSchedule(state.event, state.signups);
+      if (!scheduled.length) {
+        els.adminTbody.innerHTML = '<tr><td colspan="10"><div class="empty">No performers yet.</div></td></tr>';
+        renderPublicList();
+        return;
+      }
+
+      els.adminTbody.innerHTML = scheduled.map((row, idx) => `
+        <tr>
+          <td>${row.calcOrder}</td>
+          <td><input data-id="${row.id}" data-field="performerName" value="${escapeHtml(row.performerName || '')}" /></td>
+          <td><input data-id="${row.id}" data-field="actName" value="${escapeHtml(row.actName || '')}" /></td>
+          <td><input data-id="${row.id}" data-field="contact" value="${escapeHtml(row.contact || '')}" /></td>
+          <td><input data-id="${row.id}" data-field="songCount" type="number" min="1" max="20" value="${Number(row.songCount || 3)}" /></td>
+          <td><input data-id="${row.id}" data-field="minutes" type="number" min="1" max="60" value="${Number(row.minutes || 15)}" /></td>
+          <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
+          <td>
+            <select data-id="${row.id}" data-field="status">
+              <option value="signed_up" ${row.calculatedStatus === 'signed_up' ? 'selected' : ''}>Signed up</option>
+              <option value="checked_in" ${row.calculatedStatus === 'checked_in' ? 'selected' : ''}>Checked in</option>
+              <option value="waitlist" ${row.calculatedStatus === 'waitlist' ? 'selected' : ''}>Waitlist</option>
+              <option value="done" ${row.calculatedStatus === 'done' ? 'selected' : ''}>Done</option>
+              <option value="no_show" ${row.calculatedStatus === 'no_show' ? 'selected' : ''}>No show</option>
+            </select>
+          </td>
+          <td><input data-id="${row.id}" data-field="notes" value="${escapeHtml(row.notes || '')}" /></td>
+          <td>
+            <div class="action-row">
+              <button class="btn secondary small" data-action="up" data-id="${row.id}" ${idx === 0 ? 'disabled' : ''}>Up</button>
+              <button class="btn secondary small" data-action="down" data-id="${row.id}" ${idx === scheduled.length - 1 ? 'disabled' : ''}>Down</button>
+              <button class="btn bad small" data-action="delete" data-id="${row.id}">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      renderPublicList();
+    }
+
+    async function saveEvent(createIfNew = true) {
+      const eventId = (els.eventIdInput.value || eventIdFromInputs()).trim();
+      const adminPin = els.adminPinInput.value.trim();
+      if (!eventId) return alert('Please enter an event ID or event name.');
+      if (!adminPin) return alert('Please create or enter an admin PIN.');
+
+      const existingRef = doc(db, 'openMicEvents', eventId);
+      const existingSnap = await getDoc(existingRef);
+      if (existingSnap.exists()) {
+        const current = existingSnap.data();
+        if (current.adminPin !== adminPin) return alert('Admin PIN does not match this event.');
+      } else if (!createIfNew) {
+        return alert('Event was not found.');
+      }
+
+      const payload = {
+        eventName: els.eventNameInput.value.trim() || 'Weekly Open Mic',
+        venue: els.venueInput.value.trim() || 'Your Venue Name',
+        eventDate: els.eventDateInput.value || todayLocal(),
+        signupOpenTime: els.signupOpenInput.value || '18:00',
+        showStartTime: els.showStartInput.value || '19:00',
+        venueCloseTime: els.venueCloseInput.value || '23:00',
+        slotMinutes: Number(els.slotMinutesInput.value || 15),
+        songLimit: Number(els.songLimitInput.value || 3),
+        bufferMinutes: Number(els.bufferMinutesInput.value || 0),
+        hostNotes: els.hostNotesInput.value.trim(),
+        adminPin,
+        updatedAt: serverTimestamp(),
+        createdAt: existingSnap.exists() ? existingSnap.data().createdAt : serverTimestamp()
+      };
+
+      await setDoc(existingRef, payload, { merge: true });
+      state.eventId = eventId;
+      state.adminPin = adminPin;
+      els.eventIdInput.value = eventId;
+      els.eventTools.classList.remove('hidden');
+      const publicUrl = buildPublicUrl(eventId);
+      els.publicLinkInput.value = publicUrl;
+      await renderQr(publicUrl);
+      history.replaceState({}, '', buildAdminUrl(eventId));
+      await loadEvent(eventId, adminPin);
+    }
+
+    async function loadEvent(eventId, pin) {
+      if (!eventId) return alert('Enter an event ID first.');
+      const snap = await getDoc(doc(db, 'openMicEvents', eventId));
+      if (!snap.exists()) return alert('Event not found.');
+      const evt = snap.data();
+      if (state.mode === 'admin' && pin && evt.adminPin !== pin) return alert('Admin PIN does not match.');
+      state.eventId = eventId;
+      state.event = evt;
+      if (pin) state.adminPin = pin;
+      els.eventIdInput.value = eventId;
+      syncUIWithEvent(evt);
+      els.eventTools.classList.remove('hidden');
+      els.publicLinkInput.value = buildPublicUrl(eventId);
+      await renderQr(buildPublicUrl(eventId));
+      subscribeToSignups(eventId);
+    }
+
+    function subscribeToSignups(eventId) {
+      if (state.unsub) state.unsub();
+      const q = query(collection(db, 'openMicEvents', eventId, 'signups'), orderBy('order', 'asc'));
+      state.unsub = onSnapshot(q, (snap) => {
+        state.signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderAdminList();
+        syncUIWithEvent(state.event);
+      });
+    }
+
+    async function submitPublicSignup() {
+      if (!state.eventId || !state.event) return alert('No event is loaded.');
+      const performerName = els.signupNameInput.value.trim();
+      if (!performerName) return alert('Please enter your name.');
+      const songCount = Number(els.signupSongsInput.value || state.event.songLimit || 3);
+      const minutes = Number(els.signupMinutesInput.value || state.event.slotMinutes || 15);
+      const payload = {
+        performerName,
+        actName: els.signupActInput.value.trim(),
+        contact: els.signupContactInput.value.trim(),
+        songCount,
+        minutes,
+        notes: els.signupNotesInput.value.trim(),
+        status: 'signed_up',
+        source: 'public',
+        order: state.signups.length + 1,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), payload);
+      els.signupNameInput.value = '';
+      els.signupActInput.value = '';
+      els.signupContactInput.value = '';
+      els.signupSongsInput.value = String(state.event.songLimit || 3);
+      els.signupMinutesInput.value = String(state.event.slotMinutes || 15);
+      els.signupNotesInput.value = '';
+      alert('You are on the list.');
+    }
+
+    async function addManualPerformer() {
+      if (!state.eventId || !state.event || !state.adminPin) return alert('Load an event in admin mode first.');
+      const performerName = els.manualNameInput.value.trim();
+      if (!performerName) return alert('Please enter a performer name.');
+      await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), {
+        performerName,
+        actName: els.manualActInput.value.trim(),
+        contact: els.manualContactInput.value.trim(),
+        songCount: Number(els.manualSongsInput.value || 3),
+        minutes: Number(els.manualMinutesInput.value || 15),
+        status: els.manualStatusInput.value,
+        notes: els.manualNotesInput.value.trim(),
+        source: 'admin',
+        order: state.signups.length + 1,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      els.manualNameInput.value = '';
+      els.manualActInput.value = '';
+      els.manualContactInput.value = '';
+      els.manualSongsInput.value = '3';
+      els.manualMinutesInput.value = String(state.event?.slotMinutes || 15);
+      els.manualStatusInput.value = 'signed_up';
+      els.manualNotesInput.value = '';
+    }
+
+    async function updateSignup(id, patch) {
+      if (!state.eventId) return;
+      await updateDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id), {
+        ...patch,
+        updatedAt: serverTimestamp()
+      });
+    }
+
+    async function deleteSignup(id) {
+      if (!confirm('Delete this performer from the list?')) return;
+      await deleteDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id));
+      await normalizeOrder();
+    }
+
+    async function normalizeOrder() {
+      if (!state.eventId) return;
+      const batch = writeBatch(db);
+      state.signups
+        .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999))
+        .forEach((item, idx) => {
+          batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { order: idx + 1, updatedAt: serverTimestamp() });
+        });
+      await batch.commit();
+    }
+
+    async function moveSignup(id, direction) {
+      const list = [...state.signups].sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+      const idx = list.findIndex(x => x.id === id);
+      if (idx < 0) return;
+      const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+      if (swapIdx < 0 || swapIdx >= list.length) return;
+      const current = list[idx];
+      const other = list[swapIdx];
+      const batch = writeBatch(db);
+      batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', current.id), { order: other.order, updatedAt: serverTimestamp() });
+      batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', other.id), { order: current.order, updatedAt: serverTimestamp() });
+      await batch.commit();
+    }
+
+    function exportCsv() {
+      const scheduled = calculateSchedule(state.event, state.signups);
+      if (!scheduled.length) return alert('No signups to export.');
+      const rows = [
+        ['Order','Performer','Act','Contact','Songs','Minutes','Estimated Start','Status','Notes'],
+        ...scheduled.map(row => [
+          row.calcOrder,
+          row.performerName || '',
+          row.actName || '',
+          row.contact || '',
+          row.songCount || '',
+          row.minutes || '',
+          row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist',
+          row.calculatedStatus || '',
+          row.notes || ''
+        ])
+      ];
+      const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${state.eventId || 'open-mic'}-signup.csv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function csvEscape(value) {
+      const s = String(value ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    }
+
+    function wireTableEvents() {
+      els.adminTbody.addEventListener('change', async (e) => {
+        const t = e.target;
+        const id = t.dataset.id;
+        const field = t.dataset.field;
+        if (!id || !field) return;
+        const value = t.type === 'number' ? Number(t.value) : t.value;
+        await updateSignup(id, { [field]: value });
+      });
+
+      els.adminTbody.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        if (action === 'delete') await deleteSignup(id);
+        if (action === 'up') await moveSignup(id, 'up');
+        if (action === 'down') await moveSignup(id, 'down');
+      });
+    }
+
+    function parseUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get('view') || 'admin';
+      const event = params.get('event') || '';
+      return { view, event };
+    }
+
+    els.goAdminBtn.addEventListener('click', () => {
+      setMode('admin');
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'admin');
+      history.replaceState({}, '', url.toString());
+    });
+
+    els.goSignupBtn.addEventListener('click', () => {
+      setMode('signup');
+      const url = new URL(window.location.href);
+      url.searchParams.set('view', 'signup');
+      history.replaceState({}, '', url.toString());
+    });
+
+    els.saveEventBtn.addEventListener('click', () => saveEvent(true));
+    els.newEventBtn.addEventListener('click', () => {
+      state.eventId = '';
+      state.event = null;
+      els.eventIdInput.value = '';
+      els.adminPinInput.value = '';
+      els.eventNameInput.value = 'Weekly Open Mic';
+      els.venueInput.value = 'Your Venue Name';
+      els.eventDateInput.value = todayLocal();
+      els.signupOpenInput.value = '18:00';
+      els.showStartInput.value = '19:00';
+      els.venueCloseInput.value = '23:00';
+      els.slotMinutesInput.value = '15';
+      els.songLimitInput.value = '3';
+      els.bufferMinutesInput.value = '0';
+      els.hostNotesInput.value = '';
+      els.eventTools.classList.add('hidden');
+      syncUIWithEvent(null);
+      renderAdminList();
+    });
+
+    els.loadEventBtn.addEventListener('click', async () => {
+      const id = els.eventIdInput.value.trim();
+      const pin = els.adminPinInput.value.trim();
+      await loadEvent(id, pin);
+    });
+
+    els.copyPublicLinkBtn.addEventListener('click', async () => {
+      const link = els.publicLinkInput.value.trim();
+      if (!link) return;
+      await navigator.clipboard.writeText(link);
+      alert('Public signup link copied.');
+    });
+
+    els.downloadQrBtn.addEventListener('click', () => {
+      if (!state.eventId) return;
+      downloadCanvas(els.qrCanvas, `${state.eventId}-qr.png`);
+    });
+
+    els.submitSignupBtn.addEventListener('click', submitPublicSignup);
+    els.manualAddBtn.addEventListener('click', addManualPerformer);
+    els.exportCsvBtn.addEventListener('click', exportCsv);
+    els.refreshBtn.addEventListener('click', async () => {
+      if (state.eventId) await loadEvent(state.eventId, state.adminPin || els.adminPinInput.value.trim());
+    });
+    els.recalcBtn.addEventListener('click', renderAdminList);
+
+    wireTableEvents();
+
+    (async function init() {
+      const hasConfig = !Object.values(firebaseConfig).some(v => String(v).includes('PASTE_YOURS'));
+      if (hasConfig) els.setupBanner.classList.add('hidden');
+
+      const { view, event } = parseUrl();
+      setMode(view === 'signup' ? 'signup' : 'admin');
+
+      if (event) {
+        els.eventIdInput.value = event;
+        try {
+          await loadEvent(event, '');
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
