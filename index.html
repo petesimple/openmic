@@ -680,7 +680,10 @@
     els.signOutBtn.addEventListener('click', async () => { try { await signOut(auth); showSuccess('Signed out.'); } catch (err) { showError(`Sign out failed: ${err.message || err}`); } });
     els.eventTypeInput.addEventListener('change', () => applyEventTypeUI(getEventType()));
     els.goAdminBtn.addEventListener('click', () => { setMode('admin'); updateUrlForMode('admin'); });
-    els.goSignupBtn.addEventListener('click', () => { setMode('signup'); updateUrlForMode('signup'); });
+    els.goSignupBtn.addEventListener('click', () => {
+  const targetUrl = state.eventId ? buildPublicUrl(state.eventId) : `${window.location.origin}${window.location.pathname}?view=signup`;
+  window.open(targetUrl, '_blank', 'noopener');
+});
     els.goPosterBtn.addEventListener('click', async () => { setMode('poster'); updateUrlForMode('poster'); if (state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas); });
     els.backFromPosterBtn.addEventListener('click', () => { setMode('admin'); updateUrlForMode('admin'); });
     els.printPosterBtn.addEventListener('click', () => window.print());
