@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Open Mic Sign Up v1.3.5</title>
+  <title>Open Mic Sign Up v1.3.6</title>
   <style>
     :root {
       --bg: #0b0f14;
@@ -57,20 +57,17 @@
     .field label { display: block; font-size: .9rem; margin-bottom: 6px; color: var(--muted); }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    input, select, textarea {
-      width: 100%; background: #0d141c; color: var(--text); border: 1px solid var(--line);
-      border-radius: 12px; padding: 11px 12px; outline: none;
-    }
+    input, select, textarea { width: 100%; background: #0d141c; color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; outline: none; }
     textarea { min-height: 88px; resize: vertical; }
     .event-head { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 12px; }
     .event-name { font-size: 1.35rem; font-weight: 800; margin: 0; }
     .qr-box { display: grid; place-items: center; min-height: 220px; border: 1px dashed var(--line); border-radius: 16px; background: rgba(255,255,255,.03); }
     #qrCanvas, #posterQrCanvas { max-width: 100%; height: auto; background: white; padding: 8px; border-radius: 12px; }
     .list-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; justify-content: space-between; align-items: center; }
-    table { width: 100%; border-collapse: collapse; min-width: 1240px; }
+    table { width: 100%; border-collapse: collapse; min-width: 980px; }
     th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; vertical-align: top; text-align: left; font-size: .95rem; }
     th { color: var(--muted); font-size: .84rem; text-transform: uppercase; letter-spacing: .06em; position: sticky; top: 0; background: #141b22; z-index: 1; }
-    .table-wrap { overflow: auto; max-height: 70vh; }
+    .table-wrap { overflow: auto; max-height: 70vh; -webkit-overflow-scrolling: touch; }
     .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 999px; font-size: .8rem; font-weight: 700; border: 1px solid var(--line); background: rgba(255,255,255,.03); white-space: nowrap; }
     .status.checked { color: var(--good); }
     .status.waitlist { color: var(--warn); }
@@ -107,6 +104,19 @@
     .rules-box { margin-top: 18px; }
     .rules-box summary { cursor: pointer; padding: 18px 18px 0; font-weight: 800; }
     .rules-box pre { white-space: pre-wrap; background: #0d141c; border: 1px solid var(--line); padding: 14px; border-radius: 14px; overflow: auto; font-size: .9rem; }
+    .mobile-only { display: none; }
+    .mobile-list { display: grid; gap: 10px; }
+    .mobile-item { border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.03); padding: 12px; }
+    .mobile-item-head { display: flex; justify-content: space-between; align-items: start; gap: 10px; margin-bottom: 8px; }
+    .mobile-item-title { margin: 0; font-weight: 800; font-size: 1rem; }
+    .mobile-meta { display: grid; gap: 6px; color: var(--muted); font-size: .9rem; }
+    .mobile-meta strong { color: var(--text); font-weight: 700; }
+    body[data-view="signup"] .hero,
+    body[data-view="signup"] .rules-box,
+    body[data-view="signup"] #setupBanner,
+    body[data-view="poster"] .hero,
+    body[data-view="poster"] .rules-box,
+    body[data-view="poster"] #setupBanner { display: none !important; }
     @media print {
       body { background: white; }
       .wrap > *:not(#posterView) { display: none !important; }
@@ -117,6 +127,25 @@
     @media (max-width: 1100px) {
       .hero, .grid, .split, .poster-main { grid-template-columns: 1fr; }
       .wrap { width: min(100% - 18px, 1280px); }
+    }
+    @media (max-width: 768px) {
+      .wrap { width: calc(100% - 12px); margin: 12px auto 36px; }
+      .card-inner { padding: 14px; }
+      .row, .row-3 { grid-template-columns: 1fr; }
+      .event-head { flex-direction: column; }
+      .pill { font-size: .84rem; }
+      .top-actions, .action-row { gap: 8px; }
+      .top-actions .btn, .action-row .btn { flex: 1 1 calc(50% - 8px); }
+      body[data-view="signup"] .wrap { width: calc(100% - 10px); margin: 10px auto 24px; }
+      body[data-view="signup"] .top-actions .btn { flex: 1 1 100%; }
+      body[data-view="signup"] #signupView .grid { gap: 12px; }
+      body[data-view="signup"] #signupView .table-wrap { display: none; }
+      body[data-view="signup"] #signupView .mobile-only { display: block; }
+      body[data-view="poster"] .top-actions .btn { flex: 1 1 100%; }
+      .poster-shell { border-radius: 20px; }
+      .poster-header { padding: 20px 16px 8px; }
+      .poster-main { padding: 14px 16px 20px; }
+      .poster-footer { padding: 0 16px 18px; }
     }
   </style>
 </head>
@@ -142,14 +171,14 @@
       </div>
       <div class="card">
         <div class="card-inner">
-          <h2 class="section-title">v1.3.5 upgrades</h2>
-          <p class="subtitle">Added an admin event type switch for comedy open mics with better defaults, no song counts, and host guidance text tailored for standup style events.</p>
-          <p class="tiny muted" style="margin-top:12px;">This keeps your v1.3 owner based host workflow, while adding a cleaner setup for comedy rooms.</p>
+          <h2 class="section-title">v1.3.6 mobile polish</h2>
+          <p class="subtitle">This version focuses on mobile cleanup across admin, signup, and poster pages, especially the public signup experience.</p>
+          <p class="tiny muted" style="margin-top:12px;">The biggest change is a mobile card layout for the public signup list instead of a giant squeezed table.</p>
         </div>
       </div>
     </section>
 
-    <div class="banner" id="setupBanner">Firebase is connected. For v1.3.5, keep using the v1.3 auth and Firestore setup.</div>
+    <div class="banner" id="setupBanner">Firebase is connected. For v1.3.6, keep using the v1.3 auth and Firestore setup.</div>
     <div class="banner error-banner hidden" id="errorBanner"></div>
     <div class="banner success-banner hidden" id="successBanner"></div>
 
@@ -157,7 +186,6 @@
       <div class="card">
         <div class="card-inner">
           <h2 class="section-title">Host Admin</h2>
-
           <div class="card" style="background:rgba(255,255,255,.02);box-shadow:none;margin-bottom:16px;">
             <div class="card-inner auth-box">
               <div class="auth-meta" id="authStatusText">Not signed in</div>
@@ -167,7 +195,6 @@
               </div>
             </div>
           </div>
-
           <div class="field">
             <label>Event ID</label>
             <div class="row">
@@ -175,7 +202,6 @@
               <button class="btn secondary" id="loadEventBtn">Load Event</button>
             </div>
           </div>
-
           <div class="field">
             <label>Open mic type</label>
             <select id="eventTypeInput">
@@ -183,44 +209,33 @@
               <option value="comedy">Comedy Open Mic</option>
             </select>
           </div>
-
           <div class="field">
             <label>Host note for yourself</label>
-            <div class="tiny muted">Only the signed in event owner can edit or manage the admin side in v1.3.5.</div>
+            <div class="tiny muted">Only the signed in event owner can edit or manage the admin side in this version.</div>
           </div>
-
           <hr style="border:none;border-top:1px solid var(--line);margin:16px 0;" />
-
           <h3 class="section-title">Create or update event</h3>
-
           <div class="field"><label>Event name</label><input id="eventNameInput" value="Weekly Open Mic" /></div>
           <div class="field"><label>Venue</label><input id="venueInput" value="Your Venue Name" /></div>
           <div class="field"><label>Date</label><input id="eventDateInput" type="date" /></div>
-
           <div class="row">
             <div class="field"><label>Sign up opens</label><input id="signupOpenInput" type="time" value="18:00" /></div>
             <div class="field"><label>Show starts</label><input id="showStartInput" type="time" value="19:00" /></div>
           </div>
-
           <div class="row">
             <div class="field"><label>Venue closes</label><input id="venueCloseInput" type="time" value="23:00" /></div>
             <div class="field"><label id="slotMinutesLabel">Minutes per act</label><input id="slotMinutesInput" type="number" min="1" max="120" value="15" /></div>
           </div>
-
           <div class="row">
             <div class="field" id="songLimitField"><label id="songLimitLabel">Song limit</label><input id="songLimitInput" type="number" min="0" max="20" value="3" /></div>
             <div class="field"><label id="bufferMinutesLabel">Estimated buffer per act (min)</label><input id="bufferMinutesInput" type="number" min="0" max="60" value="0" /></div>
           </div>
-
           <div class="field"><label>Public host notes</label><textarea id="hostNotesInput" placeholder="Example: Solo acts first, groups please note setup needs, late arrivals may be moved."></textarea></div>
-
           <div class="top-actions">
             <button class="btn" id="saveEventBtn">Save Event</button>
             <button class="btn secondary" id="newEventBtn">New Event Draft</button>
           </div>
-
           <hr style="border:none;border-top:1px solid var(--line);margin:18px 0;" />
-
           <div id="eventTools" class="hidden">
             <h3 class="section-title">Share and QR</h3>
             <div class="field"><label>Public signup link</label><input id="publicLinkInput" readonly /></div>
@@ -246,7 +261,6 @@
               <button class="btn secondary small" id="refreshBtn">Refresh</button>
             </div>
           </div>
-
           <div class="split" style="margin-bottom:16px;">
             <div class="card" style="background:rgba(255,255,255,.02);box-shadow:none;">
               <div class="card-inner">
@@ -265,7 +279,6 @@
                 <button class="btn" id="manualAddBtn">Add Performer</button>
               </div>
             </div>
-
             <div class="card" style="background:rgba(255,255,255,.02);box-shadow:none;">
               <div class="card-inner">
                 <h3 class="section-title">Night snapshot</h3>
@@ -277,30 +290,16 @@
               </div>
             </div>
           </div>
-
           <div class="list-tools">
             <div class="tiny muted">Drag the ☰ handle to reorder the lineup. Only the signed in event owner can manage this list.</div>
             <div class="action-row"><button class="btn secondary small" id="recalcBtn">Recalculate Times</button></div>
           </div>
-
           <div class="banner" style="margin-bottom:12px;" id="eventTypeHelpBanner">Tip: public users can sign up, while the host can reorder, check in, or edit the lineup.</div>
-
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Performer</th>
-                  <th>Act</th>
-                  <th>Contact</th>
-                  <th id="songsColumnHeader">Songs</th>
-                  <th id="minutesColumnHeader">Minutes</th>
-                  <th>Start</th>
-                  <th>Status</th>
-                  <th>Host Controls</th>
-                  <th>Notes</th>
-                  <th>Move / Drag</th>
-                  <th>Delete</th>
+                  <th>#</th><th>Performer</th><th>Act</th><th>Contact</th><th id="songsColumnHeader">Songs</th><th id="minutesColumnHeader">Minutes</th><th>Start</th><th>Status</th><th>Host Controls</th><th>Notes</th><th>Move / Drag</th><th>Delete</th>
                 </tr>
               </thead>
               <tbody id="adminTbody"><tr><td colspan="12"><div class="empty">No performers yet.</div></td></tr></tbody>
@@ -333,7 +332,6 @@
             </div>
           </div>
         </div>
-
         <div>
           <div class="card public-list-card">
             <div class="card-inner">
@@ -348,6 +346,7 @@
                 <div class="highlight-card hidden" id="signupResultCard"><div class="tiny muted">You are in the lineup</div><div class="big-number" id="signupResultPosition">#1</div><div id="signupResultText">Estimated start around 7:00 PM.</div></div>
               </div>
               <div class="field"><label>Host notes</label><div id="publicHostNotes" class="banner" style="margin:0;">No host notes yet.</div></div>
+              <div id="publicMobileList" class="mobile-only mobile-list"></div>
               <div class="table-wrap" style="max-height:60vh;">
                 <table>
                   <thead><tr><th>#</th><th>Performer</th><th>Act</th><th id="publicSongsHeader">Songs</th><th id="publicMinutesHeader">Minutes</th><th>Est. Start</th><th>Status</th></tr></thead>
@@ -381,44 +380,13 @@
         <div class="poster-footer" id="posterFooter">Host may adjust order to keep the night moving.</div>
       </div>
     </section>
-
-    <details class="card rules-box">
-      <summary>Firestore rules for v1.3.5</summary>
-      <div class="card-inner">
-        <p class="tiny muted">These rules let anyone read events and signups, let anyone create a signup, and only let the signed in event owner manage the event or signup list.</p>
-        <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /openMicEvents/{eventId} {
-      allow read: if true;
-      allow create: if request.auth != null
-        && request.resource.data.hostUid == request.auth.uid;
-      allow update, delete: if request.auth != null
-        && resource.data.hostUid == request.auth.uid;
-
-      match /signups/{signupId} {
-        allow read: if true;
-        allow create: if true;
-        allow update, delete: if request.auth != null
-          && get(/databases/$(database)/documents/openMicEvents/$(eventId)).data.hostUid == request.auth.uid;
-      }
-    }
-  }
-}</pre>
-      </div>
-    </details>
   </div>
 
   <script type="module">
     import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
-    import {
-      getFirestore, doc, setDoc, getDoc, addDoc, collection, onSnapshot, query, orderBy,
-      updateDoc, deleteDoc, serverTimestamp, writeBatch
-    } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
-    import {
-      getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged
-    } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+    import { getFirestore, doc, setDoc, getDoc, addDoc, collection, onSnapshot, query, orderBy, updateDoc, deleteDoc, serverTimestamp, writeBatch } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
 
     const firebaseConfig = {
       apiKey: "AIzaSyBu80UqCDaQjsmhsCrvHbeqlGvvJn5CXiQ",
@@ -435,59 +403,17 @@ service cloud.firestore {
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    const state = {
-      mode: 'admin',
-      eventId: '',
-      event: null,
-      signups: [],
-      unsub: null,
-      pendingDuplicateOverride: false,
-      lastSignupId: null,
-      dragId: null,
-      user: null
-    };
-
+    const state = { mode: 'admin', eventId: '', event: null, signups: [], unsub: null, pendingDuplicateOverride: false, lastSignupId: null, dragId: null, user: null };
     const $ = (id) => document.getElementById(id);
     const els = {
       setupBanner: $('setupBanner'), errorBanner: $('errorBanner'), successBanner: $('successBanner'),
       adminView: $('adminView'), signupView: $('signupView'), posterView: $('posterView'),
       goAdminBtn: $('goAdminBtn'), goSignupBtn: $('goSignupBtn'), goPosterBtn: $('goPosterBtn'),
       signInBtn: $('signInBtn'), signOutBtn: $('signOutBtn'), authStatusText: $('authStatusText'),
-      eventIdInput: $('eventIdInput'), loadEventBtn: $('loadEventBtn'), eventTypeInput: $('eventTypeInput'),
-      eventNameInput: $('eventNameInput'), venueInput: $('venueInput'), eventDateInput: $('eventDateInput'),
-      signupOpenInput: $('signupOpenInput'), showStartInput: $('showStartInput'), venueCloseInput: $('venueCloseInput'),
-      slotMinutesInput: $('slotMinutesInput'), slotMinutesLabel: $('slotMinutesLabel'), songLimitInput: $('songLimitInput'),
-      songLimitField: $('songLimitField'), songLimitLabel: $('songLimitLabel'), bufferMinutesInput: $('bufferMinutesInput'),
-      bufferMinutesLabel: $('bufferMinutesLabel'), hostNotesInput: $('hostNotesInput'), saveEventBtn: $('saveEventBtn'),
-      newEventBtn: $('newEventBtn'), eventTools: $('eventTools'), publicLinkInput: $('publicLinkInput'),
-      copyPublicLinkBtn: $('copyPublicLinkBtn'), downloadQrBtn: $('downloadQrBtn'), openPosterBtn: $('openPosterBtn'),
-      qrCanvas: $('qrCanvas'), posterQrCanvas: $('posterQrCanvas'), adminEventTitle: $('adminEventTitle'),
-      adminEventMeta: $('adminEventMeta'), snapshotText: $('snapshotText'), nowPerformingText: $('nowPerformingText'),
-      adminTbody: $('adminTbody'), publicTbody: $('publicTbody'), publicEventTitle: $('publicEventTitle'),
-      publicEventMeta: $('publicEventMeta'), publicHostNotes: $('publicHostNotes'), publicNowPerforming: $('publicNowPerforming'),
-      signupEventInfo: $('signupEventInfo'), signupFormWrap: $('signupFormWrap'), signupNameInput: $('signupNameInput'),
-      signupActInput: $('signupActInput'), signupActLabel: $('signupActLabel'), signupContactInput: $('signupContactInput'),
-      signupSongsField: $('signupSongsField'), signupSongsInput: $('signupSongsInput'), signupSongsLabel: $('signupSongsLabel'),
-      signupMinutesInput: $('signupMinutesInput'), signupMinutesLabel: $('signupMinutesLabel'), signupNotesInput: $('signupNotesInput'),
-      signupFooterHint: $('signupFooterHint'), submitSignupBtn: $('submitSignupBtn'), submitDuplicateBtn: $('submitDuplicateBtn'),
-      duplicateWarning: $('duplicateWarning'), signupResultCard: $('signupResultCard'), signupResultPosition: $('signupResultPosition'),
-      signupResultText: $('signupResultText'), manualNameInput: $('manualNameInput'), manualActInput: $('manualActInput'),
-      manualActLabel: $('manualActLabel'), manualContactInput: $('manualContactInput'), manualSongsField: $('manualSongsField'),
-      manualSongsInput: $('manualSongsInput'), manualSongsLabel: $('manualSongsLabel'), manualMinutesInput: $('manualMinutesInput'),
-      manualMinutesLabel: $('manualMinutesLabel'), manualStatusInput: $('manualStatusInput'), manualNotesInput: $('manualNotesInput'),
-      manualAddBtn: $('manualAddBtn'), exportCsvBtn: $('exportCsvBtn'), refreshBtn: $('refreshBtn'), recalcBtn: $('recalcBtn'),
-      eventTypeHelpBanner: $('eventTypeHelpBanner'), songsColumnHeader: $('songsColumnHeader'), minutesColumnHeader: $('minutesColumnHeader'),
-      publicSongsHeader: $('publicSongsHeader'), publicMinutesHeader: $('publicMinutesHeader'), posterTitle: $('posterTitle'),
-      posterSubtitle: $('posterSubtitle'), posterVenue: $('posterVenue'), posterDate: $('posterDate'), posterSignupOpen: $('posterSignupOpen'),
-      posterShowStart: $('posterShowStart'), posterSlotInfo: $('posterSlotInfo'), posterFormatInfo: $('posterFormatInfo'),
-      posterFooter: $('posterFooter'), backFromPosterBtn: $('backFromPosterBtn'), printPosterBtn: $('printPosterBtn'),
-      downloadPosterQrBtn: $('downloadPosterQrBtn')
+      eventIdInput: $('eventIdInput'), loadEventBtn: $('loadEventBtn'), eventTypeInput: $('eventTypeInput'), eventNameInput: $('eventNameInput'), venueInput: $('venueInput'), eventDateInput: $('eventDateInput'), signupOpenInput: $('signupOpenInput'), showStartInput: $('showStartInput'), venueCloseInput: $('venueCloseInput'), slotMinutesInput: $('slotMinutesInput'), slotMinutesLabel: $('slotMinutesLabel'), songLimitInput: $('songLimitInput'), songLimitField: $('songLimitField'), songLimitLabel: $('songLimitLabel'), bufferMinutesInput: $('bufferMinutesInput'), bufferMinutesLabel: $('bufferMinutesLabel'), hostNotesInput: $('hostNotesInput'), saveEventBtn: $('saveEventBtn'), newEventBtn: $('newEventBtn'), eventTools: $('eventTools'), publicLinkInput: $('publicLinkInput'), copyPublicLinkBtn: $('copyPublicLinkBtn'), downloadQrBtn: $('downloadQrBtn'), openPosterBtn: $('openPosterBtn'), qrCanvas: $('qrCanvas'), posterQrCanvas: $('posterQrCanvas'), adminEventTitle: $('adminEventTitle'), adminEventMeta: $('adminEventMeta'), snapshotText: $('snapshotText'), nowPerformingText: $('nowPerformingText'), adminTbody: $('adminTbody'), publicTbody: $('publicTbody'), publicEventTitle: $('publicEventTitle'), publicEventMeta: $('publicEventMeta'), publicHostNotes: $('publicHostNotes'), publicNowPerforming: $('publicNowPerforming'), publicMobileList: $('publicMobileList'), signupEventInfo: $('signupEventInfo'), signupFormWrap: $('signupFormWrap'), signupNameInput: $('signupNameInput'), signupActInput: $('signupActInput'), signupActLabel: $('signupActLabel'), signupContactInput: $('signupContactInput'), signupSongsField: $('signupSongsField'), signupSongsInput: $('signupSongsInput'), signupSongsLabel: $('signupSongsLabel'), signupMinutesInput: $('signupMinutesInput'), signupMinutesLabel: $('signupMinutesLabel'), signupNotesInput: $('signupNotesInput'), signupFooterHint: $('signupFooterHint'), submitSignupBtn: $('submitSignupBtn'), submitDuplicateBtn: $('submitDuplicateBtn'), duplicateWarning: $('duplicateWarning'), signupResultCard: $('signupResultCard'), signupResultPosition: $('signupResultPosition'), signupResultText: $('signupResultText'), manualNameInput: $('manualNameInput'), manualActInput: $('manualActInput'), manualActLabel: $('manualActLabel'), manualContactInput: $('manualContactInput'), manualSongsField: $('manualSongsField'), manualSongsInput: $('manualSongsInput'), manualSongsLabel: $('manualSongsLabel'), manualMinutesInput: $('manualMinutesInput'), manualMinutesLabel: $('manualMinutesLabel'), manualStatusInput: $('manualStatusInput'), manualNotesInput: $('manualNotesInput'), manualAddBtn: $('manualAddBtn'), exportCsvBtn: $('exportCsvBtn'), refreshBtn: $('refreshBtn'), recalcBtn: $('recalcBtn'), eventTypeHelpBanner: $('eventTypeHelpBanner'), songsColumnHeader: $('songsColumnHeader'), minutesColumnHeader: $('minutesColumnHeader'), publicSongsHeader: $('publicSongsHeader'), publicMinutesHeader: $('publicMinutesHeader'), posterTitle: $('posterTitle'), posterSubtitle: $('posterSubtitle'), posterVenue: $('posterVenue'), posterDate: $('posterDate'), posterSignupOpen: $('posterSignupOpen'), posterShowStart: $('posterShowStart'), posterSlotInfo: $('posterSlotInfo'), posterFormatInfo: $('posterFormatInfo'), posterFooter: $('posterFooter'), backFromPosterBtn: $('backFromPosterBtn'), printPosterBtn: $('printPosterBtn'), downloadPosterQrBtn: $('downloadPosterQrBtn')
     };
 
-    const todayLocal = () => {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    };
+    const todayLocal = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
     if (!els.eventDateInput.value) els.eventDateInput.value = todayLocal();
 
     function showError(message) { console.error(message); els.errorBanner.textContent = message; els.errorBanner.classList.remove('hidden'); }
@@ -508,7 +434,6 @@ service cloud.firestore {
       els.minutesColumnHeader.textContent = isComedy ? 'Set Min' : 'Minutes';
       els.publicMinutesHeader.textContent = isComedy ? 'Set Min' : 'Minutes';
       els.slotMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Minutes per act';
-      els.songLimitLabel.textContent = 'Song limit';
       els.bufferMinutesLabel.textContent = isComedy ? 'Transition buffer (min)' : 'Estimated buffer per act (min)';
       els.manualActLabel.textContent = isComedy ? 'Comic / Stage name' : 'Act / Band';
       els.signupActLabel.textContent = isComedy ? 'Comic / Stage name' : 'Act / Band name';
@@ -516,27 +441,14 @@ service cloud.firestore {
       els.signupSongsLabel.textContent = isComedy ? 'Bit count' : 'Song count';
       els.manualMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Minutes';
       els.signupMinutesLabel.textContent = isComedy ? 'Set minutes' : 'Estimated minutes';
-      els.signupFooterHint.textContent = isComedy
-        ? 'Typical comedy mics are 3 to 5 minutes. Watch the light and wrap up on time.'
-        : 'The host may adjust times, order, and availability to keep the night moving.';
-      els.eventTypeHelpBanner.textContent = isComedy
-        ? 'Comedy mode: no song counts, tighter default time, and a standup-friendly signup flow.'
-        : 'Tip: public users can sign up, while the host can reorder, check in, or edit the lineup.';
-
+      els.signupFooterHint.textContent = isComedy ? 'Typical comedy mics are 3 to 5 minutes. Watch the light and wrap up on time.' : 'The host may adjust times, order, and availability to keep the night moving.';
+      els.eventTypeHelpBanner.textContent = isComedy ? 'Comedy mode: no song counts, tighter default time, and a standup friendly signup flow.' : 'Tip: public users can sign up, while the host can reorder, check in, or edit the lineup.';
       if (isComedy) {
         if (Number(els.slotMinutesInput.value || 0) === 15 || !els.slotMinutesInput.value) els.slotMinutesInput.value = '5';
         els.songLimitInput.value = '0';
         els.manualSongsInput.value = '0';
         els.signupSongsInput.value = '0';
         if (Number(els.bufferMinutesInput.value || 0) === 0) els.bufferMinutesInput.value = '1';
-        if (!els.hostNotesInput.value.trim()) {
-          els.hostNotesInput.value = 'Please arrive early to sign up, watch the light, stick to your time, stay for other comics, and thank the host.';
-        }
-      } else {
-        if (Number(els.slotMinutesInput.value || 0) === 5) els.slotMinutesInput.value = '15';
-        if (Number(els.songLimitInput.value || 0) === 0) els.songLimitInput.value = '3';
-        if (Number(els.manualSongsInput.value || 0) === 0) els.manualSongsInput.value = '3';
-        if (Number(els.signupSongsInput.value || 0) === 0) els.signupSongsInput.value = '3';
       }
     }
 
@@ -553,22 +465,12 @@ service cloud.firestore {
     }
 
     function setAdminControlsEnabled(enabled) {
-      [
-        els.loadEventBtn, els.saveEventBtn, els.newEventBtn, els.manualAddBtn, els.exportCsvBtn,
-        els.refreshBtn, els.recalcBtn, els.copyPublicLinkBtn, els.downloadQrBtn, els.openPosterBtn,
-        els.eventTypeInput, els.eventNameInput, els.venueInput, els.eventDateInput, els.signupOpenInput, els.showStartInput,
-        els.venueCloseInput, els.slotMinutesInput, els.songLimitInput, els.bufferMinutesInput, els.hostNotesInput,
-        els.manualNameInput, els.manualActInput, els.manualContactInput, els.manualSongsInput, els.manualMinutesInput,
-        els.manualStatusInput, els.manualNotesInput
-      ].forEach(el => { if (el) el.disabled = !enabled; });
+      [els.loadEventBtn, els.saveEventBtn, els.newEventBtn, els.manualAddBtn, els.exportCsvBtn, els.refreshBtn, els.recalcBtn, els.copyPublicLinkBtn, els.downloadQrBtn, els.openPosterBtn, els.eventTypeInput, els.eventNameInput, els.venueInput, els.eventDateInput, els.signupOpenInput, els.showStartInput, els.venueCloseInput, els.slotMinutesInput, els.songLimitInput, els.bufferMinutesInput, els.hostNotesInput, els.manualNameInput, els.manualActInput, els.manualContactInput, els.manualSongsInput, els.manualMinutesInput, els.manualStatusInput, els.manualNotesInput].forEach(el => { if (el) el.disabled = !enabled; });
     }
 
     function refreshOwnershipUI() {
       const enabled = !!state.user && (!state.event || isEventOwner());
       setAdminControlsEnabled(enabled);
-      if (state.event && state.user && !isEventOwner()) {
-        showError('This event belongs to another host account. You can view it publicly, but you cannot edit it.');
-      }
     }
 
     function slugify(str) { return String(str || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60) || `event-${Date.now()}`; }
@@ -577,66 +479,29 @@ service cloud.firestore {
     function formatTime(dateObj) { return dateObj.toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }); }
     function formatDatePretty(dateStr) { const [y,m,d] = dateStr.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString([], { weekday:'long', year:'numeric', month:'long', day:'numeric' }); }
     function escapeHtml(v) { return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-    function fmtStatus(status) {
-      if (status === 'checked_in') return '<span class="status checked">Checked in</span>';
-      if (status === 'waitlist') return '<span class="status waitlist">Waitlist</span>';
-      if (status === 'no_show') return '<span class="status noshow">No show</span>';
-      if (status === 'done') return '<span class="status done">Done</span>';
-      if (status === 'live') return '<span class="status live">Now performing</span>';
-      return '<span class="status">Signed up</span>';
-    }
+    function fmtStatus(status) { if (status === 'checked_in') return '<span class="status checked">Checked in</span>'; if (status === 'waitlist') return '<span class="status waitlist">Waitlist</span>'; if (status === 'no_show') return '<span class="status noshow">No show</span>'; if (status === 'done') return '<span class="status done">Done</span>'; if (status === 'live') return '<span class="status live">Now performing</span>'; return '<span class="status">Signed up</span>'; }
     function buildPublicUrl(eventId) { const url = new URL(window.location.href); url.searchParams.set('view','signup'); url.searchParams.set('event',eventId); return url.toString(); }
     function buildAdminUrl(eventId) { const url = new URL(window.location.href); url.searchParams.set('view','admin'); url.searchParams.set('event',eventId); return url.toString(); }
     function buildPosterUrl(eventId) { const url = new URL(window.location.href); url.searchParams.set('view','poster'); url.searchParams.set('event',eventId); return url.toString(); }
-    async function renderQr(text, canvas) { await QRCode.toCanvas(canvas, text, { width:280, margin:1, color:{ dark:'#000000', light:'#ffffff' } }); }
+    async function renderQr(text, canvas) { await QRCode.toCanvas(canvas, text, { width: 280, margin: 1, color: { dark: '#000000', light: '#ffffff' } }); }
     function downloadCanvas(canvas, filename) { const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = filename; a.click(); }
 
     function setMode(mode) {
       state.mode = mode;
+      document.body.dataset.view = mode;
       els.adminView.classList.toggle('hidden', mode !== 'admin');
       els.signupView.classList.toggle('hidden', mode !== 'signup');
       els.posterView.classList.toggle('hidden', mode !== 'poster');
-      els.goAdminBtn.classList.toggle('secondary', mode !== 'admin');
-      els.goSignupBtn.classList.toggle('secondary', mode !== 'signup');
-      els.goPosterBtn.classList.toggle('secondary', mode !== 'poster');
     }
 
-    function eventWindowSummary(evt) {
-      if (!evt) return 'No active event yet.';
-      const start = combineDateTime(evt.eventDate, evt.showStartTime);
-      const close = combineDateTime(evt.eventDate, evt.venueCloseTime);
-      const totalMin = Math.max(0, Math.round((close - start)/60000));
-      const slotMin = Number(evt.slotMinutes || 15) + Number(evt.bufferMinutes || 0);
-      const capacity = slotMin > 0 ? Math.floor(totalMin / slotMin) : 0;
-      const active = state.signups.filter(s => s.status !== 'no_show').length;
-      return `${evt.venue || 'Venue'} • ${evt.eventDate} • ${formatTime(start)} to ${formatTime(close)} • Around ${capacity} full slots • ${active} current signups`;
-    }
-
-    function calculateSchedule(eventData, signups) {
-      if (!eventData) return [];
-      const showStart = combineDateTime(eventData.eventDate, eventData.showStartTime);
-      const venueClose = combineDateTime(eventData.eventDate, eventData.venueCloseTime);
-      const defaultSlot = Number(eventData.slotMinutes || 15);
-      const buffer = Number(eventData.bufferMinutes || 0);
-      let cursor = new Date(showStart);
-      return [...signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)).map((item, idx) => {
-        const minutes = Number(item.minutes || defaultSlot);
-        const block = minutes + buffer;
-        const start = new Date(cursor);
-        const end = new Date(cursor.getTime() + block * 60000);
-        const waitlist = end > venueClose || item.status === 'waitlist';
-        if (!waitlist) cursor = end;
-        return { ...item, calcOrder: idx + 1, estimatedStart: waitlist ? null : start, calculatedStatus: waitlist && item.status === 'signed_up' ? 'waitlist' : item.status };
-      });
-    }
+    function eventWindowSummary(evt) { if (!evt) return 'No active event yet.'; const start = combineDateTime(evt.eventDate, evt.showStartTime); const close = combineDateTime(evt.eventDate, evt.venueCloseTime); const totalMin = Math.max(0, Math.round((close - start) / 60000)); const slotMin = Number(evt.slotMinutes || 15) + Number(evt.bufferMinutes || 0); const capacity = slotMin > 0 ? Math.floor(totalMin / slotMin) : 0; const active = state.signups.filter(s => s.status !== 'no_show').length; return `${evt.venue || 'Venue'} • ${evt.eventDate} • ${formatTime(start)} to ${formatTime(close)} • Around ${capacity} full slots • ${active} current signups`; }
+    function calculateSchedule(eventData, signups) { if (!eventData) return []; const showStart = combineDateTime(eventData.eventDate, eventData.showStartTime); const venueClose = combineDateTime(eventData.eventDate, eventData.venueCloseTime); const defaultSlot = Number(eventData.slotMinutes || 15); const buffer = Number(eventData.bufferMinutes || 0); let cursor = new Date(showStart); return [...signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)).map((item, idx) => { const minutes = Number(item.minutes || defaultSlot); const block = minutes + buffer; const start = new Date(cursor); const end = new Date(cursor.getTime() + block * 60000); const waitlist = end > venueClose || item.status === 'waitlist'; if (!waitlist) cursor = end; return { ...item, calcOrder: idx + 1, estimatedStart: waitlist ? null : start, calculatedStatus: waitlist && item.status === 'signed_up' ? 'waitlist' : item.status }; }); }
     function getLivePerformer(scheduled) { return scheduled.find(x => x.calculatedStatus === 'live') || null; }
 
     function syncPoster(evt) {
       if (!evt || !state.eventId) return;
       els.posterTitle.textContent = evt.eventName || 'Open Mic Tonight';
-      els.posterSubtitle.textContent = evt.eventType === 'comedy'
-        ? `Scan the QR code to sign up for standup at ${evt.venue || 'tonight'}.`
-        : `Scan the QR code to sign up for ${evt.venue || 'tonight'} from your phone.`;
+      els.posterSubtitle.textContent = evt.eventType === 'comedy' ? `Scan the QR code to sign up for standup at ${evt.venue || 'tonight'}.` : `Scan the QR code to sign up for ${evt.venue || 'tonight'} from your phone.`;
       els.posterVenue.textContent = evt.venue || 'Your Venue Name';
       els.posterDate.textContent = formatDatePretty(evt.eventDate);
       els.posterSignupOpen.textContent = formatTime(combineDateTime(evt.eventDate, evt.signupOpenTime));
@@ -671,9 +536,7 @@ service cloud.firestore {
       els.publicEventTitle.textContent = evt.eventName;
       els.publicEventMeta.textContent = meta;
       els.publicHostNotes.textContent = evt.hostNotes || 'No host notes yet.';
-      els.signupEventInfo.innerHTML = evt.eventType === 'comedy'
-        ? `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Typical set: about ${evt.slotMinutes} minutes. Watch the light and wrap up on time.</span>`
-        : `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Limit: ${evt.songLimit} songs or about ${evt.slotMinutes} minutes.</span>`;
+      els.signupEventInfo.innerHTML = evt.eventType === 'comedy' ? `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Typical set: about ${evt.slotMinutes} minutes. Watch the light and wrap up on time.</span>` : `<strong>${evt.eventName}</strong><br>${meta}<br><span class="tiny muted">Limit: ${evt.songLimit} songs or about ${evt.slotMinutes} minutes.</span>`;
       els.signupFormWrap.classList.remove('hidden');
       els.eventTypeInput.value = evt.eventType || 'music';
       applyEventTypeUI(els.eventTypeInput.value);
@@ -691,31 +554,18 @@ service cloud.firestore {
       refreshOwnershipUI();
     }
 
-    function updateNowPerformingDisplays(scheduled) {
-      const live = getLivePerformer(scheduled);
-      const liveText = live ? `${live.performerName || 'Unnamed performer'}${live.actName ? ` - ${live.actName}` : ''}` : 'Nobody marked live yet.';
-      els.nowPerformingText.textContent = liveText;
-      els.publicNowPerforming.textContent = liveText;
-    }
-
-    function renderSignupResultCard() {
-      if (!state.lastSignupId) return;
-      const scheduled = calculateSchedule(state.event, state.signups);
-      const row = scheduled.find(x => x.id === state.lastSignupId);
-      if (!row) return;
-      els.signupResultCard.classList.remove('hidden');
-      els.signupResultPosition.textContent = `#${row.calcOrder}`;
-      els.signupResultText.textContent = row.estimatedStart ? `Estimated start around ${formatTime(row.estimatedStart)}.` : 'You are currently on the waitlist.';
-    }
+    function updateNowPerformingDisplays(scheduled) { const live = getLivePerformer(scheduled); const liveText = live ? `${live.performerName || 'Unnamed performer'}${live.actName ? ` - ${live.actName}` : ''}` : 'Nobody marked live yet.'; els.nowPerformingText.textContent = liveText; els.publicNowPerforming.textContent = liveText; }
+    function renderSignupResultCard() { if (!state.lastSignupId) return; const scheduled = calculateSchedule(state.event, state.signups); const row = scheduled.find(x => x.id === state.lastSignupId); if (!row) return; els.signupResultCard.classList.remove('hidden'); els.signupResultPosition.textContent = `#${row.calcOrder}`; els.signupResultText.textContent = row.estimatedStart ? `Estimated start around ${formatTime(row.estimatedStart)}.` : 'You are currently on the waitlist.'; }
 
     function renderPublicList() {
       const scheduled = calculateSchedule(state.event, state.signups);
       updateNowPerformingDisplays(scheduled);
+      const comedy = isComedyEvent();
       if (!scheduled.length) {
         els.publicTbody.innerHTML = '<tr><td colspan="7"><div class="empty">No signups yet.</div></td></tr>';
+        els.publicMobileList.innerHTML = '<div class="empty">No signups yet.</div>';
         return;
       }
-      const comedy = isComedyEvent();
       els.publicTbody.innerHTML = scheduled.map(row => `
         <tr>
           <td>${row.calcOrder}</td>
@@ -726,17 +576,28 @@ service cloud.firestore {
           <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
           <td>${fmtStatus(row.calculatedStatus)}</td>
         </tr>`).join('');
+      els.publicMobileList.innerHTML = scheduled.map(row => `
+        <div class="mobile-item">
+          <div class="mobile-item-head">
+            <div>
+              <p class="mobile-item-title">#${row.calcOrder} ${escapeHtml(row.performerName || '')}</p>
+              <div class="muted tiny">${escapeHtml(row.actName || '') || (comedy ? 'Comic' : 'Performer')}</div>
+            </div>
+            ${fmtStatus(row.calculatedStatus)}
+          </div>
+          <div class="mobile-meta">
+            <div><strong>Start:</strong> ${row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist'}</div>
+            <div><strong>${comedy ? 'Set time' : 'Time'}:</strong> ${Number(row.minutes || '')} min</div>
+            ${comedy ? '' : `<div><strong>Songs:</strong> ${Number(row.songCount || '')}</div>`}
+          </div>
+        </div>`).join('');
       renderSignupResultCard();
     }
 
     function renderAdminList() {
       const scheduled = calculateSchedule(state.event, state.signups);
       updateNowPerformingDisplays(scheduled);
-      if (!scheduled.length) {
-        els.adminTbody.innerHTML = '<tr><td colspan="12"><div class="empty">No performers yet.</div></td></tr>';
-        renderPublicList();
-        return;
-      }
+      if (!scheduled.length) { els.adminTbody.innerHTML = '<tr><td colspan="12"><div class="empty">No performers yet.</div></td></tr>'; renderPublicList(); return; }
       const owner = isEventOwner();
       const comedy = isComedyEvent();
       els.adminTbody.innerHTML = scheduled.map((row, idx) => `
@@ -749,333 +610,74 @@ service cloud.firestore {
           <td><input data-id="${row.id}" data-field="minutes" type="number" min="1" max="60" value="${Number(row.minutes || 15)}" ${owner ? '' : 'disabled'} /></td>
           <td>${row.estimatedStart ? formatTime(row.estimatedStart) : '<span class="warn-text">Waitlist</span>'}</td>
           <td>${fmtStatus(row.calculatedStatus)}</td>
-          <td><div class="action-row">
-              <button class="btn good small" data-quick="checked_in" data-id="${row.id}" ${owner ? '' : 'disabled'}>Check In</button>
-              <button class="btn live small" data-quick="live" data-id="${row.id}" ${owner ? '' : 'disabled'}>Live</button>
-              <button class="btn secondary small" data-quick="done" data-id="${row.id}" ${owner ? '' : 'disabled'}>Done</button>
-          </div></td>
+          <td><div class="action-row"><button class="btn good small" data-quick="checked_in" data-id="${row.id}" ${owner ? '' : 'disabled'}>Check In</button><button class="btn live small" data-quick="live" data-id="${row.id}" ${owner ? '' : 'disabled'}>Live</button><button class="btn secondary small" data-quick="done" data-id="${row.id}" ${owner ? '' : 'disabled'}>Done</button></div></td>
           <td><input data-id="${row.id}" data-field="notes" value="${escapeHtml(row.notes || '')}" ${owner ? '' : 'disabled'} /></td>
-          <td><div class="action-row">
-              <button class="btn secondary small" data-action="up" data-id="${row.id}" ${(idx === 0 || !owner) ? 'disabled' : ''}>Up</button>
-              <button class="btn secondary small" data-action="down" data-id="${row.id}" ${(idx === scheduled.length - 1 || !owner) ? 'disabled' : ''}>Down</button>
-              <button class="btn secondary small drag-handle" draggable="${owner}" data-drag-handle="true" data-id="${row.id}" ${owner ? '' : 'disabled'}>☰</button>
-          </div></td>
+          <td><div class="action-row"><button class="btn secondary small" data-action="up" data-id="${row.id}" ${(idx === 0 || !owner) ? 'disabled' : ''}>Up</button><button class="btn secondary small" data-action="down" data-id="${row.id}" ${(idx === scheduled.length - 1 || !owner) ? 'disabled' : ''}>Down</button><button class="btn secondary small drag-handle" draggable="${owner}" data-drag-handle="true" data-id="${row.id}" ${owner ? '' : 'disabled'}>☰</button></div></td>
           <td><button class="btn bad small" data-action="delete" data-id="${row.id}" ${owner ? '' : 'disabled'}>Delete</button></td>
         </tr>`).join('');
       renderPublicList();
     }
 
-    async function saveEvent(createIfNew = true) {
-      clearError();
-      if (!requireHost()) return;
-      const eventId = (els.eventIdInput.value || eventIdFromInputs()).trim();
-      if (!eventId) return alert('Please enter an event ID or event name.');
+    async function saveEvent() {
+      clearError(); if (!requireHost()) return;
+      const eventId = (els.eventIdInput.value || eventIdFromInputs()).trim(); if (!eventId) return alert('Please enter an event ID or event name.');
       try {
-        const ref = doc(db, 'openMicEvents', eventId);
-        const snap = await getDoc(ref);
+        const ref = doc(db, 'openMicEvents', eventId); const snap = await getDoc(ref);
         if (snap.exists() && snap.data().hostUid !== state.user.uid) return showError('This event belongs to another host account.');
-        if (!snap.exists() && !createIfNew) return alert('Event was not found.');
         const eventType = getEventType();
-        const payload = {
-          eventName: els.eventNameInput.value.trim() || 'Weekly Open Mic',
-          eventType,
-          venue: els.venueInput.value.trim() || 'Your Venue Name',
-          eventDate: els.eventDateInput.value || todayLocal(),
-          signupOpenTime: els.signupOpenInput.value || '18:00',
-          showStartTime: els.showStartInput.value || '19:00',
-          venueCloseTime: els.venueCloseInput.value || '23:00',
-          slotMinutes: Number(els.slotMinutesInput.value || (eventType === 'comedy' ? 5 : 15)),
-          songLimit: eventType === 'comedy' ? 0 : Number(els.songLimitInput.value || 3),
-          bufferMinutes: Number(els.bufferMinutesInput.value || 0),
-          hostNotes: els.hostNotesInput.value.trim(),
-          hostUid: state.user.uid,
-          hostEmail: state.user.email || '',
-          hostName: state.user.displayName || '',
-          updatedAt: serverTimestamp(),
-          createdAt: snap.exists() ? snap.data().createdAt : serverTimestamp()
-        };
+        const payload = { eventName: els.eventNameInput.value.trim() || 'Weekly Open Mic', eventType, venue: els.venueInput.value.trim() || 'Your Venue Name', eventDate: els.eventDateInput.value || todayLocal(), signupOpenTime: els.signupOpenInput.value || '18:00', showStartTime: els.showStartInput.value || '19:00', venueCloseTime: els.venueCloseInput.value || '23:00', slotMinutes: Number(els.slotMinutesInput.value || (eventType === 'comedy' ? 5 : 15)), songLimit: eventType === 'comedy' ? 0 : Number(els.songLimitInput.value || 3), bufferMinutes: Number(els.bufferMinutesInput.value || 0), hostNotes: els.hostNotesInput.value.trim(), hostUid: state.user.uid, hostEmail: state.user.email || '', hostName: state.user.displayName || '', updatedAt: serverTimestamp(), createdAt: snap.exists() ? snap.data().createdAt : serverTimestamp() };
         await setDoc(ref, payload, { merge: true });
-        state.eventId = eventId;
-        els.eventIdInput.value = eventId;
-        els.eventTools.classList.remove('hidden');
-        const publicUrl = buildPublicUrl(eventId);
-        els.publicLinkInput.value = publicUrl;
-        await renderQr(publicUrl, els.qrCanvas);
-        history.replaceState({}, '', buildAdminUrl(eventId));
-        await loadEvent(eventId);
-        showSuccess('Event saved. Format settings updated.');
-      } catch (err) {
-        console.error(err);
-        showError(`Save failed: ${err.message || err}`);
-      }
+        state.eventId = eventId; els.eventIdInput.value = eventId; els.eventTools.classList.remove('hidden');
+        const publicUrl = buildPublicUrl(eventId); els.publicLinkInput.value = publicUrl; await renderQr(publicUrl, els.qrCanvas); history.replaceState({}, '', buildAdminUrl(eventId)); await loadEvent(eventId); showSuccess('Event saved.');
+      } catch (err) { showError(`Save failed: ${err.message || err}`); }
     }
 
     async function loadEvent(eventId) {
-      clearError();
-      if (!eventId) return alert('Enter an event ID first.');
+      clearError(); if (!eventId) return alert('Enter an event ID first.');
       try {
-        const snap = await getDoc(doc(db, 'openMicEvents', eventId));
-        if (!snap.exists()) return alert('Event not found.');
-        state.eventId = eventId;
-        state.event = snap.data();
-        els.eventIdInput.value = eventId;
-        syncUIWithEvent(state.event);
-        els.eventTools.classList.remove('hidden');
-        els.publicLinkInput.value = buildPublicUrl(eventId);
-        await renderQr(buildPublicUrl(eventId), els.qrCanvas);
-        await renderQr(buildPublicUrl(eventId), els.posterQrCanvas);
-        subscribeToSignups(eventId);
-      } catch (err) {
-        console.error(err);
-        showError(`Load failed: ${err.message || err}`);
-      }
+        const snap = await getDoc(doc(db, 'openMicEvents', eventId)); if (!snap.exists()) return alert('Event not found.');
+        state.eventId = eventId; state.event = snap.data(); els.eventIdInput.value = eventId; syncUIWithEvent(state.event); els.eventTools.classList.remove('hidden'); els.publicLinkInput.value = buildPublicUrl(eventId); await renderQr(buildPublicUrl(eventId), els.qrCanvas); await renderQr(buildPublicUrl(eventId), els.posterQrCanvas); subscribeToSignups(eventId);
+      } catch (err) { showError(`Load failed: ${err.message || err}`); }
     }
 
-    function subscribeToSignups(eventId) {
-      if (state.unsub) state.unsub();
-      const q = query(collection(db, 'openMicEvents', eventId, 'signups'), orderBy('order', 'asc'));
-      state.unsub = onSnapshot(q, (snap) => {
-        state.signups = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderAdminList();
-        syncUIWithEvent(state.event);
-      }, (err) => showError(`Live update failed: ${err.message || err}`));
-    }
-
-    function getDuplicateMatches(name, contact) {
-      const normalizedName = String(name || '').trim().toLowerCase();
-      const normalizedContact = String(contact || '').trim().toLowerCase();
-      return state.signups.filter(item => {
-        const itemName = String(item.performerName || '').trim().toLowerCase();
-        const itemContact = String(item.contact || '').trim().toLowerCase();
-        return (normalizedName && itemName === normalizedName) || (normalizedContact && itemContact === normalizedContact);
-      });
-    }
-
-    function updateDuplicateWarning() {
-      const matches = getDuplicateMatches(els.signupNameInput.value, els.signupContactInput.value);
-      if (matches.length) {
-        const names = matches.map(x => x.performerName).filter(Boolean).join(', ');
-        els.duplicateWarning.textContent = `Heads up: this looks like a duplicate signup for ${names}.`;
-        els.duplicateWarning.classList.remove('hidden');
-        els.submitDuplicateBtn.classList.remove('hidden');
-      } else {
-        els.duplicateWarning.textContent = '';
-        els.duplicateWarning.classList.add('hidden');
-        els.submitDuplicateBtn.classList.add('hidden');
-        state.pendingDuplicateOverride = false;
-      }
-    }
+    function subscribeToSignups(eventId) { if (state.unsub) state.unsub(); const q = query(collection(db, 'openMicEvents', eventId, 'signups'), orderBy('order', 'asc')); state.unsub = onSnapshot(q, (snap) => { state.signups = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderAdminList(); syncUIWithEvent(state.event); }, (err) => showError(`Live update failed: ${err.message || err}`)); }
+    function getDuplicateMatches(name, contact) { const normalizedName = String(name || '').trim().toLowerCase(); const normalizedContact = String(contact || '').trim().toLowerCase(); return state.signups.filter(item => { const itemName = String(item.performerName || '').trim().toLowerCase(); const itemContact = String(item.contact || '').trim().toLowerCase(); return (normalizedName && itemName === normalizedName) || (normalizedContact && itemContact === normalizedContact); }); }
+    function updateDuplicateWarning() { const matches = getDuplicateMatches(els.signupNameInput.value, els.signupContactInput.value); if (matches.length) { const names = matches.map(x => x.performerName).filter(Boolean).join(', '); els.duplicateWarning.textContent = `Heads up: this looks like a duplicate signup for ${names}.`; els.duplicateWarning.classList.remove('hidden'); els.submitDuplicateBtn.classList.remove('hidden'); } else { els.duplicateWarning.textContent = ''; els.duplicateWarning.classList.add('hidden'); els.submitDuplicateBtn.classList.add('hidden'); } }
 
     async function createSignup(forceDuplicate = false) {
-      clearError();
-      if (!state.eventId || !state.event) return alert('No event is loaded.');
-      const performerName = els.signupNameInput.value.trim();
-      if (!performerName) return alert('Please enter your name.');
-      const matches = getDuplicateMatches(performerName, els.signupContactInput.value.trim());
-      if (matches.length && !forceDuplicate) {
-        state.pendingDuplicateOverride = true;
-        updateDuplicateWarning();
-        return;
-      }
+      clearError(); if (!state.eventId || !state.event) return alert('No event is loaded.');
+      const performerName = els.signupNameInput.value.trim(); if (!performerName) return alert('Please enter your name.');
+      const matches = getDuplicateMatches(performerName, els.signupContactInput.value.trim()); if (matches.length && !forceDuplicate) { updateDuplicateWarning(); return; }
       try {
-        const ref = await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), {
-          performerName,
-          actName: els.signupActInput.value.trim(),
-          contact: els.signupContactInput.value.trim(),
-          songCount: isComedyEvent() ? 0 : Number(els.signupSongsInput.value || state.event.songLimit || 3),
-          minutes: Number(els.signupMinutesInput.value || state.event.slotMinutes || 15),
-          notes: els.signupNotesInput.value.trim(),
-          status: 'signed_up',
-          source: 'public',
-          order: state.signups.length + 1,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-        state.lastSignupId = ref.id;
-        els.signupNameInput.value = '';
-        els.signupActInput.value = '';
-        els.signupContactInput.value = '';
-        els.signupSongsInput.value = isComedyEvent() ? '0' : String(state.event.songLimit || 3);
-        els.signupMinutesInput.value = String(state.event.slotMinutes || 15);
-        els.signupNotesInput.value = '';
-        els.duplicateWarning.textContent = '';
-        els.duplicateWarning.classList.add('hidden');
-        els.submitDuplicateBtn.classList.add('hidden');
-        state.pendingDuplicateOverride = false;
-        showSuccess('Signup submitted. You are on the list.');
+        const ref = await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), { performerName, actName: els.signupActInput.value.trim(), contact: els.signupContactInput.value.trim(), songCount: isComedyEvent() ? 0 : Number(els.signupSongsInput.value || state.event.songLimit || 3), minutes: Number(els.signupMinutesInput.value || state.event.slotMinutes || 15), notes: els.signupNotesInput.value.trim(), status: 'signed_up', source: 'public', order: state.signups.length + 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+        state.lastSignupId = ref.id; els.signupNameInput.value = ''; els.signupActInput.value = ''; els.signupContactInput.value = ''; els.signupSongsInput.value = isComedyEvent() ? '0' : String(state.event.songLimit || 3); els.signupMinutesInput.value = String(state.event.slotMinutes || 15); els.signupNotesInput.value = ''; els.duplicateWarning.textContent = ''; els.duplicateWarning.classList.add('hidden'); els.submitDuplicateBtn.classList.add('hidden'); showSuccess('Signup submitted. You are on the list.');
       } catch (err) { showError(`Signup failed: ${err.message || err}`); }
     }
 
-    async function addManualPerformer() {
-      if (!isEventOwner()) return showError('Only the event owner can add performers manually.');
-      const performerName = els.manualNameInput.value.trim();
-      if (!performerName) return alert('Please enter a performer name.');
-      try {
-        await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), {
-          performerName,
-          actName: els.manualActInput.value.trim(),
-          contact: els.manualContactInput.value.trim(),
-          songCount: isComedyEvent() ? 0 : Number(els.manualSongsInput.value || 3),
-          minutes: Number(els.manualMinutesInput.value || 15),
-          status: els.manualStatusInput.value,
-          notes: els.manualNotesInput.value.trim(),
-          source: 'admin',
-          order: state.signups.length + 1,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-        els.manualNameInput.value = '';
-        els.manualActInput.value = '';
-        els.manualContactInput.value = '';
-        els.manualSongsInput.value = isComedyEvent() ? '0' : '3';
-        els.manualMinutesInput.value = String(state.event?.slotMinutes || 15);
-        els.manualStatusInput.value = 'signed_up';
-        els.manualNotesInput.value = '';
-        showSuccess('Performer added.');
-      } catch (err) { showError(`Manual add failed: ${err.message || err}`); }
-    }
-
-    async function updateSignup(id, patch) {
-      if (!isEventOwner()) return showError('Only the event owner can edit signups.');
-      try { await updateDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id), { ...patch, updatedAt: serverTimestamp() }); }
-      catch (err) { showError(`Update failed: ${err.message || err}`); }
-    }
-
-    async function markSignupStatus(id, nextStatus) {
-      if (!isEventOwner()) return showError('Only the event owner can update lineup status.');
-      try {
-        if (nextStatus === 'live') {
-          const batch = writeBatch(db);
-          state.signups.forEach(item => {
-            const targetStatus = item.id === id ? 'live' : (item.status === 'live' ? 'checked_in' : item.status);
-            batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { status: targetStatus, updatedAt: serverTimestamp() });
-          });
-          await batch.commit();
-          return;
-        }
-        await updateSignup(id, { status: nextStatus });
-      } catch (err) { showError(`Status update failed: ${err.message || err}`); }
-    }
-
-    async function deleteSignup(id) {
-      if (!isEventOwner()) return showError('Only the event owner can delete signups.');
-      if (!confirm('Delete this performer from the list?')) return;
-      try { await deleteDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id)); await normalizeOrder(); }
-      catch (err) { showError(`Delete failed: ${err.message || err}`); }
-    }
-
-    async function normalizeOrder() {
-      if (!isEventOwner()) return;
-      try {
-        const batch = writeBatch(db);
-        state.signups.sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)).forEach((item, idx) => {
-          batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { order: idx + 1, updatedAt: serverTimestamp() });
-        });
-        await batch.commit();
-      } catch (err) { showError(`Reorder failed: ${err.message || err}`); }
-    }
-
-    async function moveSignup(id, direction) {
-      if (!isEventOwner()) return showError('Only the event owner can reorder the lineup.');
-      try {
-        const list = [...state.signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999));
-        const idx = list.findIndex(x => x.id === id);
-        if (idx < 0) return;
-        const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-        if (swapIdx < 0 || swapIdx >= list.length) return;
-        const current = list[idx];
-        const other = list[swapIdx];
-        const batch = writeBatch(db);
-        batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', current.id), { order: other.order, updatedAt: serverTimestamp() });
-        batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', other.id), { order: current.order, updatedAt: serverTimestamp() });
-        await batch.commit();
-      } catch (err) { showError(`Move failed: ${err.message || err}`); }
-    }
-
-    async function reorderSignupBefore(dragId, targetId) {
-      if (!isEventOwner()) return showError('Only the event owner can reorder the lineup.');
-      try {
-        const list = [...state.signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999));
-        const fromIndex = list.findIndex(x => x.id === dragId);
-        const toIndex = list.findIndex(x => x.id === targetId);
-        if (fromIndex < 0 || toIndex < 0) return;
-        const [moved] = list.splice(fromIndex, 1);
-        list.splice(toIndex, 0, moved);
-        const batch = writeBatch(db);
-        list.forEach((item, idx) => batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { order: idx + 1, updatedAt: serverTimestamp() }));
-        await batch.commit();
-        showSuccess('Lineup reordered.');
-      } catch (err) { showError(`Drag reorder failed: ${err.message || err}`); }
-    }
-
-    function exportCsv() {
-      const scheduled = calculateSchedule(state.event, state.signups);
-      if (!scheduled.length) return alert('No signups to export.');
-      const rows = [['Order','Performer','Act','Contact','Songs','Minutes','Estimated Start','Status','Notes'], ...scheduled.map(row => [row.calcOrder,row.performerName || '',row.actName || '',row.contact || '',isComedyEvent() ? '' : row.songCount || '',row.minutes || '',row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist',row.calculatedStatus || '',row.notes || ''])];
-      const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${state.eventId || 'open-mic'}-signup.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    async function addManualPerformer() { if (!isEventOwner()) return showError('Only the event owner can add performers manually.'); const performerName = els.manualNameInput.value.trim(); if (!performerName) return alert('Please enter a performer name.'); try { await addDoc(collection(db, 'openMicEvents', state.eventId, 'signups'), { performerName, actName: els.manualActInput.value.trim(), contact: els.manualContactInput.value.trim(), songCount: isComedyEvent() ? 0 : Number(els.manualSongsInput.value || 3), minutes: Number(els.manualMinutesInput.value || 15), notes: els.manualNotesInput.value.trim(), status: els.manualStatusInput.value, source: 'admin', order: state.signups.length + 1, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }); els.manualNameInput.value = ''; els.manualActInput.value = ''; els.manualContactInput.value = ''; els.manualSongsInput.value = isComedyEvent() ? '0' : '3'; els.manualMinutesInput.value = String(state.event?.slotMinutes || 15); els.manualStatusInput.value = 'signed_up'; els.manualNotesInput.value = ''; showSuccess('Performer added.'); } catch (err) { showError(`Manual add failed: ${err.message || err}`); } }
+    async function updateSignup(id, patch) { if (!isEventOwner()) return showError('Only the event owner can edit signups.'); try { await updateDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id), { ...patch, updatedAt: serverTimestamp() }); } catch (err) { showError(`Update failed: ${err.message || err}`); } }
+    async function markSignupStatus(id, nextStatus) { if (!isEventOwner()) return showError('Only the event owner can update lineup status.'); try { if (nextStatus === 'live') { const batch = writeBatch(db); state.signups.forEach(item => { const targetStatus = item.id === id ? 'live' : (item.status === 'live' ? 'checked_in' : item.status); batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { status: targetStatus, updatedAt: serverTimestamp() }); }); await batch.commit(); return; } await updateSignup(id, { status: nextStatus }); } catch (err) { showError(`Status update failed: ${err.message || err}`); } }
+    async function deleteSignup(id) { if (!isEventOwner()) return showError('Only the event owner can delete signups.'); if (!confirm('Delete this performer from the list?')) return; try { await deleteDoc(doc(db, 'openMicEvents', state.eventId, 'signups', id)); await normalizeOrder(); } catch (err) { showError(`Delete failed: ${err.message || err}`); } }
+    async function normalizeOrder() { if (!isEventOwner()) return; try { const batch = writeBatch(db); state.signups.sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)).forEach((item, idx) => { batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { order: idx + 1, updatedAt: serverTimestamp() }); }); await batch.commit(); } catch (err) { showError(`Reorder failed: ${err.message || err}`); } }
+    async function moveSignup(id, direction) { if (!isEventOwner()) return showError('Only the event owner can reorder the lineup.'); try { const list = [...state.signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)); const idx = list.findIndex(x => x.id === id); if (idx < 0) return; const swapIdx = direction === 'up' ? idx - 1 : idx + 1; if (swapIdx < 0 || swapIdx >= list.length) return; const current = list[idx]; const other = list[swapIdx]; const batch = writeBatch(db); batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', current.id), { order: other.order, updatedAt: serverTimestamp() }); batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', other.id), { order: current.order, updatedAt: serverTimestamp() }); await batch.commit(); } catch (err) { showError(`Move failed: ${err.message || err}`); } }
+    async function reorderSignupBefore(dragId, targetId) { if (!isEventOwner()) return showError('Only the event owner can reorder the lineup.'); try { const list = [...state.signups].sort((a,b) => (a.order ?? 9999) - (b.order ?? 9999)); const fromIndex = list.findIndex(x => x.id === dragId); const toIndex = list.findIndex(x => x.id === targetId); if (fromIndex < 0 || toIndex < 0) return; const [moved] = list.splice(fromIndex, 1); list.splice(toIndex, 0, moved); const batch = writeBatch(db); list.forEach((item, idx) => batch.update(doc(db, 'openMicEvents', state.eventId, 'signups', item.id), { order: idx + 1, updatedAt: serverTimestamp() })); await batch.commit(); showSuccess('Lineup reordered.'); } catch (err) { showError(`Drag reorder failed: ${err.message || err}`); } }
+    function exportCsv() { const scheduled = calculateSchedule(state.event, state.signups); if (!scheduled.length) return alert('No signups to export.'); const rows = [['Order','Performer','Act','Contact','Songs','Minutes','Estimated Start','Status','Notes'], ...scheduled.map(row => [row.calcOrder,row.performerName || '',row.actName || '',row.contact || '',isComedyEvent() ? '' : row.songCount || '',row.minutes || '',row.estimatedStart ? formatTime(row.estimatedStart) : 'Waitlist',row.calculatedStatus || '',row.notes || ''])]; const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n'); const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${state.eventId || 'open-mic'}-signup.csv`; a.click(); URL.revokeObjectURL(url); }
     function csvEscape(value) { const s = String(value ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; }
 
     function wireTableEvents() {
-      els.adminTbody.addEventListener('change', async (e) => {
-        const t = e.target; const id = t.dataset.id; const field = t.dataset.field; if (!id || !field) return;
-        const value = t.type === 'number' ? Number(t.value) : t.value; await updateSignup(id, { [field]: value });
-      });
-      els.adminTbody.addEventListener('click', async (e) => {
-        const quickBtn = e.target.closest('button[data-quick]');
-        if (quickBtn) return markSignupStatus(quickBtn.dataset.id, quickBtn.dataset.quick);
-        const btn = e.target.closest('button[data-action]');
-        if (!btn) return;
-        const id = btn.dataset.id; const action = btn.dataset.action;
-        if (action === 'delete') await deleteSignup(id);
-        if (action === 'up') await moveSignup(id, 'up');
-        if (action === 'down') await moveSignup(id, 'down');
-      });
-      els.adminTbody.addEventListener('dragstart', (e) => {
-        if (!isEventOwner()) return;
-        const handle = e.target.closest('[data-drag-handle="true"]');
-        if (!handle) return;
-        state.dragId = handle.dataset.id;
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', state.dragId);
-      });
-      els.adminTbody.addEventListener('dragover', (e) => {
-        const row = e.target.closest('tr[data-row-id]');
-        if (!row || !state.dragId || !isEventOwner()) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-      });
-      els.adminTbody.addEventListener('drop', async (e) => {
-        const row = e.target.closest('tr[data-row-id]');
-        if (!row || !state.dragId || !isEventOwner()) return;
-        e.preventDefault();
-        const targetId = row.dataset.rowId;
-        if (!targetId || targetId === state.dragId) { state.dragId = null; return; }
-        await reorderSignupBefore(state.dragId, targetId);
-        state.dragId = null;
-      });
+      els.adminTbody.addEventListener('change', async (e) => { const t = e.target; const id = t.dataset.id; const field = t.dataset.field; if (!id || !field) return; const value = t.type === 'number' ? Number(t.value) : t.value; await updateSignup(id, { [field]: value }); });
+      els.adminTbody.addEventListener('click', async (e) => { const quickBtn = e.target.closest('button[data-quick]'); if (quickBtn) return markSignupStatus(quickBtn.dataset.id, quickBtn.dataset.quick); const btn = e.target.closest('button[data-action]'); if (!btn) return; const id = btn.dataset.id; const action = btn.dataset.action; if (action === 'delete') await deleteSignup(id); if (action === 'up') await moveSignup(id, 'up'); if (action === 'down') await moveSignup(id, 'down'); });
+      els.adminTbody.addEventListener('dragstart', (e) => { if (!isEventOwner()) return; const handle = e.target.closest('[data-drag-handle="true"]'); if (!handle) return; state.dragId = handle.dataset.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', state.dragId); });
+      els.adminTbody.addEventListener('dragover', (e) => { const row = e.target.closest('tr[data-row-id]'); if (!row || !state.dragId || !isEventOwner()) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+      els.adminTbody.addEventListener('drop', async (e) => { const row = e.target.closest('tr[data-row-id]'); if (!row || !state.dragId || !isEventOwner()) return; e.preventDefault(); const targetId = row.dataset.rowId; if (!targetId || targetId === state.dragId) { state.dragId = null; return; } await reorderSignupBefore(state.dragId, targetId); state.dragId = null; });
       els.adminTbody.addEventListener('dragend', () => { state.dragId = null; });
     }
 
     function parseUrl() { const params = new URLSearchParams(window.location.search); return { view: params.get('view') || 'admin', event: params.get('event') || '' }; }
     function updateUrlForMode(mode) { const url = new URL(window.location.href); url.searchParams.set('view', mode); if (state.eventId) url.searchParams.set('event', state.eventId); history.replaceState({}, '', url.toString()); }
 
-    els.signInBtn.addEventListener('click', async () => {
-      try { await signInWithPopup(auth, provider); showSuccess('Signed in.'); }
-      catch (err) { showError(`Sign in failed: ${err.message || err}`); }
-    });
-    els.signOutBtn.addEventListener('click', async () => {
-      try { await signOut(auth); showSuccess('Signed out.'); }
-      catch (err) { showError(`Sign out failed: ${err.message || err}`); }
-    });
-
+    els.signInBtn.addEventListener('click', async () => { try { await signInWithPopup(auth, provider); showSuccess('Signed in.'); } catch (err) { showError(`Sign in failed: ${err.message || err}`); } });
+    els.signOutBtn.addEventListener('click', async () => { try { await signOut(auth); showSuccess('Signed out.'); } catch (err) { showError(`Sign out failed: ${err.message || err}`); } });
     els.eventTypeInput.addEventListener('change', () => applyEventTypeUI(getEventType()));
     els.goAdminBtn.addEventListener('click', () => { setMode('admin'); updateUrlForMode('admin'); });
     els.goSignupBtn.addEventListener('click', () => { setMode('signup'); updateUrlForMode('signup'); });
@@ -1083,30 +685,8 @@ service cloud.firestore {
     els.backFromPosterBtn.addEventListener('click', () => { setMode('admin'); updateUrlForMode('admin'); });
     els.printPosterBtn.addEventListener('click', () => window.print());
     els.downloadPosterQrBtn.addEventListener('click', () => { if (!state.eventId) return; downloadCanvas(els.posterQrCanvas, `${state.eventId}-poster-qr.png`); });
-    els.saveEventBtn.addEventListener('click', () => saveEvent(true));
-    els.newEventBtn.addEventListener('click', () => {
-      clearError(); state.eventId = ''; state.event = null; state.lastSignupId = null;
-      if (state.unsub) { state.unsub(); state.unsub = null; }
-      state.signups = [];
-      els.eventIdInput.value = '';
-      els.eventTypeInput.value = 'music';
-      applyEventTypeUI('music');
-      els.eventNameInput.value = 'Weekly Open Mic';
-      els.venueInput.value = 'Your Venue Name';
-      els.eventDateInput.value = todayLocal();
-      els.signupOpenInput.value = '18:00';
-      els.showStartInput.value = '19:00';
-      els.venueCloseInput.value = '23:00';
-      els.slotMinutesInput.value = '15';
-      els.songLimitInput.value = '3';
-      els.bufferMinutesInput.value = '0';
-      els.hostNotesInput.value = '';
-      els.eventTools.classList.add('hidden');
-      els.signupResultCard.classList.add('hidden');
-      syncUIWithEvent(null);
-      renderAdminList();
-      showSuccess('New event draft ready.');
-    });
+    els.saveEventBtn.addEventListener('click', saveEvent);
+    els.newEventBtn.addEventListener('click', () => { clearError(); state.eventId = ''; state.event = null; state.lastSignupId = null; if (state.unsub) { state.unsub(); state.unsub = null; } state.signups = []; els.eventIdInput.value = ''; els.eventTypeInput.value = 'music'; applyEventTypeUI('music'); els.eventNameInput.value = 'Weekly Open Mic'; els.venueInput.value = 'Your Venue Name'; els.eventDateInput.value = todayLocal(); els.signupOpenInput.value = '18:00'; els.showStartInput.value = '19:00'; els.venueCloseInput.value = '23:00'; els.slotMinutesInput.value = '15'; els.songLimitInput.value = '3'; els.bufferMinutesInput.value = '0'; els.hostNotesInput.value = ''; els.eventTools.classList.add('hidden'); els.signupResultCard.classList.add('hidden'); syncUIWithEvent(null); renderAdminList(); showSuccess('New event draft ready.'); });
     els.loadEventBtn.addEventListener('click', async () => { await loadEvent(els.eventIdInput.value.trim()); });
     els.copyPublicLinkBtn.addEventListener('click', async () => { const link = els.publicLinkInput.value.trim(); if (!link) return; await navigator.clipboard.writeText(link); showSuccess('Public signup link copied.'); });
     els.downloadQrBtn.addEventListener('click', () => { if (!state.eventId) return; downloadCanvas(els.qrCanvas, `${state.eventId}-qr.png`); });
@@ -1119,17 +699,9 @@ service cloud.firestore {
     els.exportCsvBtn.addEventListener('click', exportCsv);
     els.refreshBtn.addEventListener('click', async () => { if (state.eventId) await loadEvent(state.eventId); });
     els.recalcBtn.addEventListener('click', renderAdminList);
-
     wireTableEvents();
 
-    onAuthStateChanged(auth, async (user) => {
-      state.user = user || null;
-      updateAuthUI();
-      refreshOwnershipUI();
-      if (state.eventId) {
-        try { await loadEvent(state.eventId); } catch (err) { console.error(err); }
-      }
-    });
+    onAuthStateChanged(auth, async (user) => { state.user = user || null; updateAuthUI(); refreshOwnershipUI(); if (state.eventId) { try { await loadEvent(state.eventId); } catch (err) { console.error(err); } } });
 
     (async function init() {
       const { view, event } = parseUrl();
@@ -1138,10 +710,7 @@ service cloud.firestore {
       refreshOwnershipUI();
       if (event) {
         els.eventIdInput.value = event;
-        try {
-          await loadEvent(event);
-          if (view === 'poster' && state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas);
-        } catch (err) { console.error(err); showError(`Init failed: ${err.message || err}`); }
+        try { await loadEvent(event); if (view === 'poster' && state.eventId) await renderQr(buildPublicUrl(state.eventId), els.posterQrCanvas); } catch (err) { console.error(err); showError(`Init failed: ${err.message || err}`); }
       } else {
         syncUIWithEvent(null);
       }
